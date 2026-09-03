@@ -1516,3 +1516,499 @@ html.dark
       calc(100vw - 115px);
   }
 }
+
+/* =====================================================
+   ANGAMAPS PWA + MOBILE EXPERIENCE
+===================================================== */
+
+html {
+  min-height: 100%;
+  background: var(--app-bg);
+  overscroll-behavior-y: none;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--app-bg);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+
+/* -------------------------------
+   Safe areas
+-------------------------------- */
+
+.app-navbar {
+  padding-top:
+    env(
+      safe-area-inset-top,
+      0px
+    );
+}
+
+.app-shell {
+  padding-bottom:
+    env(
+      safe-area-inset-bottom,
+      0px
+    );
+}
+
+
+/* -------------------------------
+   PWA install prompt
+-------------------------------- */
+
+.pwa-install-card {
+  position: relative;
+  border-color: var(--border);
+  background:
+    color-mix(
+      in srgb,
+      var(--surface)
+      96%,
+      transparent
+    );
+  backdrop-filter:
+    blur(26px);
+  -webkit-backdrop-filter:
+    blur(26px);
+  box-shadow:
+    0 28px 80px
+    rgba(15, 23, 42, 0.18);
+}
+
+html.dark
+.pwa-install-card {
+  background:
+    rgba(
+      13,
+      20,
+      35,
+      0.96
+    );
+
+  box-shadow:
+    0 30px 90px
+    rgba(0, 0, 0, 0.48);
+}
+
+
+.pwa-install-glow {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  top: -90px;
+  left: -70px;
+  pointer-events: none;
+  border-radius: 999px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(
+        14,
+        165,
+        233,
+        0.20
+      ),
+      transparent 68%
+    );
+}
+
+
+.pwa-app-icon {
+  background:
+    linear-gradient(
+      145deg,
+      #0284c7,
+      #0ea5e9
+    );
+
+  color: #ffffff;
+
+  box-shadow:
+    0 12px 30px
+    rgba(
+      14,
+      165,
+      233,
+      0.26
+    );
+}
+
+
+.pwa-benefit,
+.pwa-step {
+  border-color:
+    var(--border);
+
+  background:
+    var(--surface-secondary);
+}
+
+
+.pwa-install-button {
+  border: 0;
+  cursor: pointer;
+
+  background:
+    var(--button-bg);
+
+  color:
+    var(--button-text);
+
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.pwa-install-button:hover {
+  background:
+    var(--button-hover);
+
+  box-shadow:
+    var(--shadow-md);
+}
+
+.pwa-install-button:active {
+  transform:
+    scale(0.985);
+}
+
+
+.pwa-step-number {
+  display: flex;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background:
+    rgba(
+      14,
+      165,
+      233,
+      0.10
+    );
+
+  color:
+    #0ea5e9;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+/* -------------------------------
+   Connection indicator
+-------------------------------- */
+
+.pwa-network-banner {
+  border-color:
+    rgba(
+      245,
+      158,
+      11,
+      0.22
+    );
+
+  background:
+    rgba(
+      255,
+      251,
+      235,
+      0.94
+    );
+
+  color:
+    #92400e;
+
+  backdrop-filter:
+    blur(20px);
+
+  -webkit-backdrop-filter:
+    blur(20px);
+}
+
+
+html.dark
+.pwa-network-banner {
+  border-color:
+    rgba(
+      245,
+      158,
+      11,
+      0.18
+    );
+
+  background:
+    rgba(
+      69,
+      39,
+      4,
+      0.90
+    );
+
+  color:
+    #fcd34d;
+}
+
+
+/* -------------------------------
+   Better mobile touch targets
+-------------------------------- */
+
+button,
+a,
+input,
+select {
+  touch-action:
+    manipulation;
+}
+
+
+button,
+a {
+  -webkit-user-select:
+    none;
+
+  user-select:
+    none;
+}
+
+
+input {
+  font-size: 16px;
+}
+
+/*
+ * Prevents iOS Safari from
+ * zooming into text inputs.
+ */
+
+@media (
+  min-width: 768px
+) {
+  input {
+    font-size:
+      inherit;
+  }
+}
+
+
+/* -------------------------------
+   Mobile map controls
+-------------------------------- */
+
+@media (
+  max-width: 640px
+) {
+  .map-wrapper {
+    height:
+      min(
+        68dvh,
+        590px
+      ) !important;
+  }
+
+
+  .weather-layer-control {
+    top: 12px;
+    right: 12px;
+  }
+
+
+  .map-control-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+
+  .map-layer-panel {
+    width:
+      min(
+        calc(
+          100vw - 32px
+        ),
+        320px
+      );
+  }
+
+
+  .weather-reading-card {
+    left: 12px;
+    top: 12px;
+
+    width:
+      min(
+        230px,
+        calc(
+          100vw - 90px
+        )
+      );
+
+    padding: 13px;
+  }
+
+
+  .weather-legend {
+    left: 12px;
+    bottom: 12px;
+
+    width:
+      min(
+        205px,
+        calc(
+          100vw - 100px
+        )
+      );
+
+    max-height:
+      245px;
+
+    overflow-y:
+      auto;
+  }
+
+
+  .map-layer-error {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+
+    max-width: none;
+  }
+}
+
+
+/* -------------------------------
+   Mobile layout polish
+-------------------------------- */
+
+@media (
+  max-width: 767px
+) {
+  .app-navbar {
+    backdrop-filter:
+      blur(20px);
+
+    -webkit-backdrop-filter:
+      blur(20px);
+  }
+
+
+  .premium-card {
+    border-radius:
+      22px;
+  }
+
+
+  .sidebar-card {
+    padding:
+      18px;
+  }
+
+
+  .weather-hero {
+    border-radius:
+      22px;
+  }
+
+
+  .search-dropdown {
+    max-height:
+      min(
+        55vh,
+        420px
+      );
+
+    overflow-y:
+      auto;
+
+    overscroll-behavior:
+      contain;
+  }
+
+
+  .pwa-install-wrapper {
+    bottom:
+      calc(
+        12px +
+        env(
+          safe-area-inset-bottom,
+          0px
+        )
+      );
+  }
+}
+
+
+/* -------------------------------
+   Installed standalone mode
+-------------------------------- */
+
+@media (
+  display-mode: standalone
+) {
+  body {
+    min-height:
+      100dvh;
+  }
+
+
+  .app-navbar {
+    padding-top:
+      env(
+        safe-area-inset-top,
+        0px
+      );
+  }
+
+
+  .app-shell {
+    padding-bottom:
+      env(
+        safe-area-inset-bottom,
+        0px
+      );
+  }
+}
+
+
+/* -------------------------------
+   Reduced motion
+-------------------------------- */
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior:
+      auto !important;
+
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+
+    transition-duration:
+      0.01ms !important;
+  }
+}
