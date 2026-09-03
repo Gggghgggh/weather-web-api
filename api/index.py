@@ -12,13 +12,15 @@ from api.services.weather_service import (
     get_forecast,
 )
 
+from api.services.weather_map_service import (
+    get_weather_tile,
+)
+
 
 app = FastAPI(
     title="AngaMaps API",
-    description=(
-        "Weather and geospatial intelligence API"
-    ),
-    version="1.2.0",
+    description="Weather and geospatial intelligence API",
+    version="1.3.0",
 )
 
 
@@ -27,7 +29,7 @@ async def root():
     return {
         "name": "AngaMaps API",
         "status": "online",
-        "version": "1.2.0",
+        "version": "1.3.0",
     }
 
 
@@ -66,7 +68,6 @@ async def weather(
         ge=-90,
         le=90,
     ),
-
     lon: float = Query(
         ...,
         ge=-180,
@@ -82,12 +83,10 @@ async def weather(
             latitude=lat,
             longitude=lon,
         ),
-
         get_forecast(
             latitude=lat,
             longitude=lon,
         ),
-
         reverse_geocode(
             latitude=lat,
             longitude=lon,
@@ -96,40 +95,28 @@ async def weather(
 
     return {
         "location": location,
-
         "coordinates": {
             "latitude": lat,
             "longitude": lon,
         },
-
-        "timezone_offset": (
-            forecast.get(
+        "timezone_offset": forecast.get(
+            "timezone_offset",
+            current_weather.get(
                 "timezone_offset",
-                current_weather.get(
-                    "timezone_offset",
-                    0,
-                ),
-            )
+                0,
+            ),
         ),
-
         "current": current_weather,
-
         "hourly": forecast.get(
             "hourly",
             [],
         ),
-
         "daily": forecast.get(
             "daily",
             [],
         ),
     }
 
-
-#
-# Keep your old endpoint working for
-# backwards compatibility.
-#
 
 @app.get("/api/weather/current")
 async def current_weather(
@@ -138,28 +125,44 @@ async def current_weather(
         ge=-90,
         le=90,
     ),
-
     lon: float = Query(
         ...,
         ge=-180,
         le=180,
     ),
 ):
-    weather_data, location = (
-        await asyncio.gather(
-            get_current_weather(
-                latitude=lat,
-                longitude=lon,
-            ),
-
-            reverse_geocode(
-                latitude=lat,
-                longitude=lon,
-            ),
-        )
+    (
+        weather_data,
+        location,
+    ) = await asyncio.gather(
+        get_current_weather(
+            latitude=lat,
+            longitude=lon,
+        ),
+        reverse_geocode(
+            latitude=lat,
+            longitude=lon,
+        ),
     )
 
     return {
         "location": location,
         "weather": weather_data,
     }
+
+
+@app.get(
+    "/api/weather/tiles/{layer}/{z}/{x}/{y}.png"
+)
+async def weather_tile(
+    layer: str,
+    z: int,
+    x: int,
+    y: int,
+):
+    return await get_weather_tile(
+        layer=layer,
+        zoom=z,
+        x=x,
+        y=y,
+    )
