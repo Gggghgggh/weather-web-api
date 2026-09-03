@@ -1,58 +1,16 @@
-# 🌦️ Weather Checker
+# React + Vite
 
-A modern and responsive web application built with **FastAPI** and **Jinja2** that fetches real-time weather data using the **OpenWeatherMap API**. Designed with a clean and mobile-friendly UI and deployed on **Vercel**.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-## 🔗 Live Demo
-Check it out live here: [Weather Checker App](https://weather-web-api-git-main-christophers-projects-9ac7965f.vercel.app/)
+Currently, two official plugins are available:
 
-## ✨ Features
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-- 🔍 Search weather by city
-- 📡 Real-time data from OpenWeatherMap
-- 💻 Clean and responsive UI
-- ☁️ FastAPI backend with HTML templating (Jinja2)
-- 🚀 Deployed on Vercel
+## React Compiler
 
-## 🚀 Getting Started
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-### Prerequisites
+## Expanding the Oxlint configuration
 
-- Python 3.8+
-- FastAPI
-- Uvicorn
-- Jinja2
-- requests
-
-### Installation
-
-1. Clone the repository:
-    ```bash
-        git clone https://github.com/Gggghgggh/weather-web-api.git
-        cd weather-checker
-    
-2. Install dependencies:
-
-       pip install -r requirements.txt
-
-4. Create a .env file or replace the API_KEY in index.py with your OpenWeatherMap API key.
-   
-6. Run locally:
-   
-       uvicorn api.index:app --reload
-
-8. Visit http://localhost:8000 to view the app.
-   
-## 📦 Directory Structure
-
-        weather-web-api/
-        │
-        ├── api/
-        │   ├── index.py
-        │   ├── templates/
-        │   │   └── form.html
-        │   └── static/ (optional, for icons)
-        ├── vercel.json
-        ├── README.md
-        └── requirements.txt
-
-
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
