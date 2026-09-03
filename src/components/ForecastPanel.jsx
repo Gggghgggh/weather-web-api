@@ -2,247 +2,172 @@ import {
   CalendarDays,
   CloudRain,
   Droplets,
+  LoaderCircle,
+  RefreshCw,
   TrendingUp,
   Wind,
 } from 'lucide-react';
 
 
-function getWeatherIconUrl(icon) {
+function formatForecastTime(
+  item
+) {
+  if (
+    item.local_time
+  ) {
+    return item.local_time;
+  }
+
+
+  if (
+    !item.local_datetime
+  ) {
+    return '—';
+  }
+
+
+  try {
+    return new Intl.DateTimeFormat(
+      'en',
+      {
+        hour: 'numeric',
+        minute: '2-digit',
+      }
+    ).format(
+      new Date(
+        item.local_datetime
+      )
+    );
+
+  } catch {
+    return '—';
+  }
+}
+
+
+function formatDay(
+  date
+) {
+  if (!date) {
+    return '—';
+  }
+
+
+  const parts =
+    date.split('-');
+
+
+  if (
+    parts.length !== 3
+  ) {
+    return date;
+  }
+
+
+  const [
+    year,
+    month,
+    day,
+  ] = parts.map(
+    Number
+  );
+
+
+  const value =
+    new Date(
+      Date.UTC(
+        year,
+        month - 1,
+        day
+      )
+    );
+
+
+  return new Intl.DateTimeFormat(
+    'en',
+    {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      timeZone: 'UTC',
+    }
+  ).format(
+    value
+  );
+}
+
+
+function WeatherIcon({
+  icon,
+  description,
+  size = 'small',
+}) {
   if (!icon) {
     return null;
   }
 
-  return `https://openweathermap.org/img/wn/${icon}@2x.png`;
-}
 
+  const className =
+    size === 'large'
+      ? 'h-14 w-14'
+      : 'h-10 w-10';
 
-function formatTemperature(value) {
-  if (
-    value === null ||
-    value === undefined
-  ) {
-    return '--';
-  }
-
-  return `${Math.round(value)}°`;
-}
-
-
-function formatProbability(value) {
-  if (
-    value === null ||
-    value === undefined
-  ) {
-    return 0;
-  }
-
-  return Math.round(value * 100);
-}
-
-
-function formatForecastTime(localDatetime) {
-  if (!localDatetime) {
-    return '--';
-  }
-
-  const date = new Date(localDatetime);
-
-  return date.toLocaleTimeString([], {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-}
-
-
-function formatDay(dateValue, index) {
-  if (index === 0) {
-    return 'Today';
-  }
-
-  if (!dateValue) {
-    return '--';
-  }
-
-  const date = new Date(
-    `${dateValue}T12:00:00`
-  );
-
-  return date.toLocaleDateString([], {
-    weekday: 'short',
-  });
-}
-
-
-function HourForecastCard({
-  item,
-  index,
-}) {
-  const iconUrl =
-    getWeatherIconUrl(item.icon);
 
   return (
-    <div className="forecast-hour-card group relative min-w-[132px] overflow-hidden rounded-2xl border p-4 transition duration-300">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-400/40 to-transparent opacity-0 transition group-hover:opacity-100" />
+    <img
+      src={
+        `https://openweathermap.org/img/wn/${icon}@2x.png`
+      }
+      alt={
+        description ||
+        'Weather condition'
+      }
+      className={
+        className
+      }
+    />
+  );
+}
 
-      <div className="flex items-center justify-between gap-2">
-        <p className="primary-text text-xs font-semibold">
-          {index === 0
-            ? 'Upcoming'
-            : formatForecastTime(
-                item.local_datetime
-              )}
-        </p>
 
-        <span className="h-1.5 w-1.5 rounded-full bg-sky-500/70" />
-      </div>
+function ForecastUnavailable({
+  error,
+}) {
+  return (
+    <div className="mt-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5">
 
-      <div className="my-3 flex h-14 items-center justify-center">
-        {iconUrl ? (
-          <img
-            src={iconUrl}
-            alt={
-              item.description ||
-              'Weather'
-            }
-            className="h-14 w-14 object-contain drop-shadow-sm"
+      <div className="flex items-start gap-3">
+
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
+
+          <RefreshCw
+            size={16}
           />
-        ) : (
-          <div className="h-14" />
-        )}
-      </div>
 
-      <p className="primary-text text-center text-2xl font-semibold tracking-tight">
-        {formatTemperature(
-          item.temperature
-        )}
-      </p>
-
-      <p className="secondary-text mt-1 min-h-8 text-center text-[11px] capitalize leading-4">
-        {item.description ||
-          item.condition ||
-          'Weather'}
-      </p>
-
-      <div className="mt-4 flex items-center justify-center gap-1.5 rounded-lg bg-sky-500/5 px-2 py-1.5 text-[11px] text-sky-500">
-        <CloudRain size={12} />
-
-        <span className="font-medium">
-          {formatProbability(
-            item.precipitation_probability
-          )}
-          %
-        </span>
-      </div>
-    </div>
-  );
-}
+        </div>
 
 
-function DailyForecastCard({
-  item,
-  index,
-}) {
-  const iconUrl =
-    getWeatherIconUrl(item.icon);
-
-  return (
-    <div className="forecast-day-card group relative overflow-hidden rounded-2xl border p-4 transition duration-300">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-400/40 to-transparent opacity-0 transition group-hover:opacity-100" />
-
-      <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="primary-text text-sm font-semibold">
-            {formatDay(
-              item.date,
-              index
-            )}
+
+          <p className="primary-text text-xs font-semibold">
+            Forecast temporarily unavailable
           </p>
 
-          <p className="secondary-text mt-1 text-[11px] capitalize">
-            {item.description ||
-              item.condition ||
-              'Weather'}
-          </p>
-        </div>
 
-        {iconUrl && (
-          <img
-            src={iconUrl}
-            alt={
-              item.description ||
-              'Weather'
+          <p className="secondary-text mt-1 text-[11px] leading-5">
+            {
+              error ||
+              (
+                'Current weather is still available. '
+                + 'Upcoming conditions could not be loaded right now.'
+              )
             }
-            className="h-12 w-12 object-contain drop-shadow-sm"
-          />
-        )}
-      </div>
+          </p>
 
-      <div className="mt-5 flex items-end gap-2">
-        <p className="primary-text text-2xl font-semibold tracking-tight">
-          {formatTemperature(
-            item.temperature_max
-          )}
-        </p>
-
-        <span className="secondary-text pb-1 text-sm">
-          /
-        </span>
-
-        <p className="secondary-text pb-1 text-sm font-medium">
-          {formatTemperature(
-            item.temperature_min
-          )}
-        </p>
-      </div>
-
-      <div
-        className="mt-4 space-y-2.5 border-t pt-3"
-        style={{
-          borderColor:
-            'var(--border-subtle)',
-        }}
-      >
-        <div className="secondary-text flex items-center justify-between gap-3 text-[11px]">
-          <span className="flex items-center gap-1.5">
-            <CloudRain size={13} />
-            Precipitation
-          </span>
-
-          <span className="primary-text font-medium">
-            {formatProbability(
-              item.precipitation_probability
-            )}
-            %
-          </span>
         </div>
 
-        <div className="secondary-text flex items-center justify-between gap-3 text-[11px]">
-          <span className="flex items-center gap-1.5">
-            <Droplets size={13} />
-            Humidity
-          </span>
-
-          <span className="primary-text font-medium">
-            {item.humidity ?? '--'}%
-          </span>
-        </div>
-
-        <div className="secondary-text flex items-center justify-between gap-3 text-[11px]">
-          <span className="flex items-center gap-1.5">
-            <Wind size={13} />
-            Wind
-          </span>
-
-          <span className="primary-text font-medium">
-            {item.wind_speed !==
-            null &&
-            item.wind_speed !==
-              undefined
-              ? `${item.wind_speed} m/s`
-              : '--'}
-          </span>
-        </div>
       </div>
+
     </div>
   );
 }
@@ -252,160 +177,472 @@ function ForecastPanel({
   hourly = [],
   daily = [],
   loading = false,
+  available = true,
+  error = '',
+  hasLocation = false,
 }) {
-  if (loading) {
-    return (
-      <section className="sidebar-card overflow-hidden rounded-3xl border p-5 md:p-6">
-        <div className="animate-pulse">
-          <div className="flex items-center justify-between">
-            <div>
-              <div
-                className="h-4 w-32 rounded"
-                style={{
-                  background:
-                    'var(--surface-hover)',
-                }}
-              />
-
-              <div
-                className="mt-3 h-7 w-56 rounded"
-                style={{
-                  background:
-                    'var(--surface-hover)',
-                }}
-              />
-            </div>
-
-            <div
-              className="h-10 w-10 rounded-xl"
-              style={{
-                background:
-                  'var(--surface-hover)',
-              }}
-            />
-          </div>
-
-          <div className="mt-7 flex gap-3 overflow-hidden">
-            {Array.from({
-              length: 8,
-            }).map((_, index) => (
-              <div
-                key={index}
-                className="h-44 min-w-[132px] rounded-2xl"
-                style={{
-                  background:
-                    'var(--surface-hover)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-
-  if (
-    hourly.length === 0 &&
-    daily.length === 0
-  ) {
-    return null;
-  }
-
-
   return (
-    <section className="sidebar-card overflow-hidden rounded-3xl border p-5 md:p-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="premium-card content-card rounded-3xl border p-5 sm:p-6">
+
+      <div className="flex flex-wrap items-start justify-between gap-4">
+
         <div>
-          <div className="secondary-text flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]">
-            <CalendarDays size={14} />
-            Forecast
+
+          <div className="flex items-center gap-2">
+
+            <TrendingUp
+              size={15}
+              className="text-sky-500"
+            />
+
+
+            <p className="secondary-text text-[10px] font-semibold uppercase tracking-[0.16em]">
+              Forecast
+            </p>
+
           </div>
 
-          <h2 className="primary-text mt-2 text-2xl font-semibold tracking-tight">
+
+          <h2 className="primary-text mt-2 text-lg font-semibold">
             Weather outlook
           </h2>
 
-          <p className="secondary-text mt-1 max-w-xl text-sm leading-6">
-            A clear view of changing
-            conditions over the next
-            several days.
+
+          <p className="secondary-text mt-1 text-xs">
+            See how conditions are expected to change.
           </p>
+
         </div>
 
-        <div className="hidden h-11 w-11 items-center justify-center rounded-xl border bg-sky-500/5 text-sky-500 sm:flex">
-          <TrendingUp size={19} />
-        </div>
+
+        {available &&
+          hasLocation &&
+          (
+            hourly.length > 0 ||
+            daily.length > 0
+          ) && (
+            <div className="meta-badge flex items-center gap-2 rounded-full border px-3 py-2">
+
+              <CalendarDays
+                size={12}
+                className="text-sky-500"
+              />
+
+
+              <span className="secondary-text text-[10px]">
+                Next 5 days
+              </span>
+
+            </div>
+          )}
+
       </div>
 
 
-      {hourly.length > 0 && (
-        <div className="mt-7">
-          <div className="mb-4 flex items-end justify-between gap-4">
-            <div>
-              <h3 className="primary-text text-sm font-semibold">
-                Next 24 hours
-              </h3>
+      {!hasLocation && (
+        <div className="empty-state mt-6 rounded-2xl border p-6">
 
-              <p className="secondary-text mt-1 text-xs">
-                Conditions across the
-                coming day
+          <p className="primary-text text-sm font-semibold">
+            Choose a location
+          </p>
+
+
+          <p className="secondary-text mt-2 text-xs leading-5">
+            Select a place to see the upcoming weather outlook.
+          </p>
+
+        </div>
+      )}
+
+
+      {hasLocation &&
+        loading && (
+          <div className="mt-6 flex items-center gap-3 rounded-2xl border p-6">
+
+            <LoaderCircle
+              size={20}
+              className="animate-spin text-sky-500"
+            />
+
+
+            <div>
+
+              <p className="primary-text text-xs font-semibold">
+                Preparing your forecast
               </p>
+
+
+              <p className="secondary-text mt-1 text-[10px]">
+                Reading upcoming conditions…
+              </p>
+
             </div>
 
-            <p className="secondary-text hidden text-[11px] sm:block">
-              Updated with selected location
+          </div>
+        )}
+
+
+      {hasLocation &&
+        !loading &&
+        !available && (
+          <ForecastUnavailable
+            error={
+              error
+            }
+          />
+        )}
+
+
+      {hasLocation &&
+        !loading &&
+        available &&
+        hourly.length === 0 &&
+        daily.length === 0 && (
+          <div className="empty-state mt-6 rounded-2xl border p-6">
+
+            <p className="primary-text text-sm font-semibold">
+              No forecast data yet
             </p>
-          </div>
-
-          <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-3">
-            {hourly.map(
-              (item, index) => (
-                <HourForecastCard
-                  key={
-                    item.timestamp ||
-                    index
-                  }
-                  item={item}
-                  index={index}
-                />
-              )
-            )}
-          </div>
-        </div>
-      )}
 
 
-      {daily.length > 0 && (
-        <div className="mt-8">
-          <div className="mb-4">
-            <h3 className="primary-text text-sm font-semibold">
-              5-day outlook
-            </h3>
-
-            <p className="secondary-text mt-1 text-xs">
-              Daily highs, lows and
-              expected conditions
+            <p className="secondary-text mt-2 text-xs leading-5">
+              Current conditions are available, but no upcoming forecast points were returned.
             </p>
-          </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {daily.map(
-              (item, index) => (
-                <DailyForecastCard
-                  key={
-                    item.date ||
-                    index
-                  }
-                  item={item}
-                  index={index}
-                />
-              )
-            )}
           </div>
-        </div>
-      )}
-    </section>
+        )}
+
+
+      {hasLocation &&
+        !loading &&
+        available &&
+        hourly.length > 0 && (
+          <section className="mt-7">
+
+            <div className="mb-4">
+
+              <p className="primary-text text-sm font-semibold">
+                Next 24 hours
+              </p>
+
+
+              <p className="secondary-text mt-1 text-[10px]">
+                Conditions across the coming day
+              </p>
+
+            </div>
+
+
+            <div className="grid gap-3 overflow-x-auto pb-2 sm:grid-cols-4 lg:grid-cols-8">
+
+              {hourly.map(
+                (
+                  item,
+                  index
+                ) => (
+                  <div
+                    key={
+                      item.timestamp ||
+                      index
+                    }
+                    className="forecast-hour-card min-w-[125px] rounded-2xl border p-3"
+                  >
+
+                    <p className="secondary-text text-[9px] font-semibold uppercase tracking-[0.1em]">
+                      {
+                        formatForecastTime(
+                          item
+                        )
+                      }
+                    </p>
+
+
+                    <div className="my-2 flex justify-center">
+
+                      <WeatherIcon
+                        icon={
+                          item.icon
+                        }
+                        description={
+                          item.description
+                        }
+                      />
+
+                    </div>
+
+
+                    <p className="primary-text text-center text-lg font-semibold">
+                      {
+                        item.temperature != null
+                          ? `${Math.round(item.temperature)}°`
+                          : '—'
+                      }
+                    </p>
+
+
+                    <p className="secondary-text mt-1 truncate text-center text-[9px] capitalize">
+                      {
+                        item.description ||
+                        item.condition ||
+                        'Weather'
+                      }
+                    </p>
+
+
+                    <div className="mt-3 space-y-1.5">
+
+                      <div className="flex items-center justify-between gap-2">
+
+                        <span className="secondary-text flex items-center gap-1 text-[9px]">
+
+                          <CloudRain
+                            size={11}
+                            className="text-sky-500"
+                          />
+
+                          Rain
+
+                        </span>
+
+
+                        <span className="secondary-text text-[9px]">
+                          {
+                            item.precipitation_probability != null
+                              ? `${Math.round(
+                                  item.precipitation_probability * 100
+                                )}%`
+                              : '—'
+                          }
+                        </span>
+
+                      </div>
+
+
+                      <div className="flex items-center justify-between gap-2">
+
+                        <span className="secondary-text flex items-center gap-1 text-[9px]">
+
+                          <Droplets
+                            size={11}
+                            className="text-sky-500"
+                          />
+
+                          Humidity
+
+                        </span>
+
+
+                        <span className="secondary-text text-[9px]">
+                          {
+                            item.humidity != null
+                              ? `${item.humidity}%`
+                              : '—'
+                          }
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </section>
+        )}
+
+
+      {hasLocation &&
+        !loading &&
+        available &&
+        daily.length > 0 && (
+          <section className="mt-8">
+
+            <div className="mb-4">
+
+              <p className="primary-text text-sm font-semibold">
+                5-day outlook
+              </p>
+
+
+              <p className="secondary-text mt-1 text-[10px]">
+                Daily highs, lows and expected conditions
+              </p>
+
+            </div>
+
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+
+              {daily.map(
+                (
+                  item,
+                  index
+                ) => (
+                  <div
+                    key={
+                      item.date ||
+                      index
+                    }
+                    className="forecast-day-card rounded-2xl border p-4"
+                  >
+
+                    <p className="primary-text text-xs font-semibold">
+                      {
+                        formatDay(
+                          item.date
+                        )
+                      }
+                    </p>
+
+
+                    <div className="mt-2 flex items-center justify-between gap-3">
+
+                      <WeatherIcon
+                        icon={
+                          item.icon
+                        }
+                        description={
+                          item.description
+                        }
+                        size="large"
+                      />
+
+
+                      <div className="text-right">
+
+                        <p className="primary-text text-lg font-semibold">
+                          {
+                            item.temperature_max != null
+                              ? `${Math.round(
+                                  item.temperature_max
+                                )}°`
+                              : '—'
+                          }
+                        </p>
+
+
+                        <p className="secondary-text text-[10px]">
+                          {
+                            item.temperature_min != null
+                              ? `${Math.round(
+                                  item.temperature_min
+                                )}° low`
+                              : '—'
+                          }
+                        </p>
+
+                      </div>
+
+                    </div>
+
+
+                    <p className="secondary-text mt-2 truncate text-[10px] capitalize">
+                      {
+                        item.description ||
+                        item.condition ||
+                        'Weather'
+                      }
+                    </p>
+
+
+                    <div
+                      className="mt-4 space-y-2 border-t pt-3"
+                      style={{
+                        borderColor:
+                          'var(--border-subtle)',
+                      }}
+                    >
+
+                      <div className="flex items-center justify-between">
+
+                        <span className="secondary-text flex items-center gap-1.5 text-[9px]">
+
+                          <CloudRain
+                            size={11}
+                          />
+
+                          Rain
+
+                        </span>
+
+
+                        <span className="primary-text text-[9px] font-semibold">
+                          {
+                            item.precipitation_probability != null
+                              ? `${Math.round(
+                                  item.precipitation_probability * 100
+                                )}%`
+                              : '—'
+                          }
+                        </span>
+
+                      </div>
+
+
+                      <div className="flex items-center justify-between">
+
+                        <span className="secondary-text flex items-center gap-1.5 text-[9px]">
+
+                          <Droplets
+                            size={11}
+                          />
+
+                          Humidity
+
+                        </span>
+
+
+                        <span className="primary-text text-[9px] font-semibold">
+                          {
+                            item.humidity != null
+                              ? `${item.humidity}%`
+                              : '—'
+                          }
+                        </span>
+
+                      </div>
+
+
+                      <div className="flex items-center justify-between">
+
+                        <span className="secondary-text flex items-center gap-1.5 text-[9px]">
+
+                          <Wind
+                            size={11}
+                          />
+
+                          Wind
+
+                        </span>
+
+
+                        <span className="primary-text text-[9px] font-semibold">
+                          {
+                            item.wind_speed != null
+                              ? `${Number(
+                                  item.wind_speed
+                                ).toFixed(1)} m/s`
+                              : '—'
+                          }
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </section>
+        )}
+
+    </div>
   );
 }
 

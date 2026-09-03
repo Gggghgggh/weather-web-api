@@ -1,8 +1,14 @@
 import os
+
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import (
+    datetime,
+    timedelta,
+    timezone,
+)
 
 import httpx
+
 from dotenv import load_dotenv
 from fastapi import HTTPException
 
@@ -15,16 +21,23 @@ OPENWEATHER_API_KEY = os.getenv(
 )
 
 OPENWEATHER_CURRENT_URL = (
-    "https://api.openweathermap.org/data/2.5/weather"
+    "https://api.openweathermap.org/"
+    "data/2.5/weather"
 )
 
 OPENWEATHER_FORECAST_URL = (
-    "https://api.openweathermap.org/data/2.5/forecast"
+    "https://api.openweathermap.org/"
+    "data/2.5/forecast"
 )
 
 
-def get_weather_condition(item: dict):
-    weather = item.get("weather", [])
+def get_weather_condition(
+    item: dict,
+):
+    weather = item.get(
+        "weather",
+        [],
+    )
 
     if not weather:
         return {}
@@ -36,20 +49,15 @@ def get_local_datetime(
     timestamp: int,
     timezone_offset: int,
 ):
-    """
-    Convert an OpenWeather UTC timestamp into the
-    selected location's local date/time.
-
-    OpenWeather returns timezone offset in seconds.
-    """
-
-    utc_time = datetime.fromtimestamp(
-        timestamp,
-        tz=timezone.utc,
+    location_timezone = timezone(
+        timedelta(
+            seconds=timezone_offset
+        )
     )
 
-    return utc_time + timedelta(
-        seconds=timezone_offset
+    return datetime.fromtimestamp(
+        timestamp,
+        tz=location_timezone,
     )
 
 
@@ -61,20 +69,27 @@ async def get_current_weather(
         raise HTTPException(
             status_code=500,
             detail=(
-                "OpenWeather API key is not configured."
+                "Weather service "
+                "is not configured."
             ),
         )
 
     params = {
         "lat": latitude,
         "lon": longitude,
-        "appid": OPENWEATHER_API_KEY,
+        "appid":
+            OPENWEATHER_API_KEY,
         "units": "metric",
     }
 
+    timeout = httpx.Timeout(
+        15.0,
+        connect=8.0,
+    )
+
     try:
         async with httpx.AsyncClient(
-            timeout=12.0
+            timeout=timeout
         ) as client:
             response = await client.get(
                 OPENWEATHER_CURRENT_URL,
@@ -85,7 +100,8 @@ async def get_current_weather(
             raise HTTPException(
                 status_code=502,
                 detail=(
-                    "OpenWeather rejected the API key."
+                    "Weather service "
+                    "authentication failed."
                 ),
             )
 
@@ -93,7 +109,8 @@ async def get_current_weather(
             raise HTTPException(
                 status_code=429,
                 detail=(
-                    "OpenWeather request limit reached."
+                    "Weather service is "
+                    "currently busy."
                 ),
             )
 
@@ -101,80 +118,168 @@ async def get_current_weather(
             raise HTTPException(
                 status_code=502,
                 detail=(
-                    "Unable to retrieve current weather."
+                    "Current weather is "
+                    "temporarily unavailable."
                 ),
             )
 
         data = response.json()
 
-        main = data.get("main", {})
-        wind = data.get("wind", {})
-        clouds = data.get("clouds", {})
-        weather = get_weather_condition(data)
-        sys_data = data.get("sys", {})
+        main = data.get(
+            "main",
+            {},
+        )
+
+        wind = data.get(
+            "wind",
+            {},
+        )
+
+        clouds = data.get(
+            "clouds",
+            {},
+        )
+
+        rain = data.get(
+            "rain",
+            {},
+        )
+
+        snow = data.get(
+            "snow",
+            {},
+        )
+
+        weather = (
+            get_weather_condition(
+                data
+            )
+        )
+
+        sys_data = data.get(
+            "sys",
+            {},
+        )
 
         return {
-            "timestamp": data.get("dt"),
+            "timestamp":
+                data.get("dt"),
 
-            "temperature": main.get("temp"),
+            "temperature":
+                main.get("temp"),
 
-            "feels_like": main.get(
-                "feels_like"
-            ),
+            "feels_like":
+                main.get(
+                    "feels_like"
+                ),
 
-            "temperature_min": main.get(
-                "temp_min"
-            ),
+            "temperature_min":
+                main.get(
+                    "temp_min"
+                ),
 
-            "temperature_max": main.get(
-                "temp_max"
-            ),
+            "temperature_max":
+                main.get(
+                    "temp_max"
+                ),
 
-            "pressure": main.get("pressure"),
+            "pressure":
+                main.get(
+                    "pressure"
+                ),
 
-            "humidity": main.get("humidity"),
+            "humidity":
+                main.get(
+                    "humidity"
+                ),
 
-            "visibility": data.get(
-                "visibility"
-            ),
+            "visibility":
+                data.get(
+                    "visibility"
+                ),
 
-            "wind_speed": wind.get("speed"),
+            "wind_speed":
+                wind.get(
+                    "speed"
+                ),
 
-            "wind_direction": wind.get(
-                "deg"
-            ),
+            "wind_direction":
+                wind.get(
+                    "deg"
+                ),
 
-            "wind_gust": wind.get("gust"),
+            "wind_gust":
+                wind.get(
+                    "gust"
+                ),
 
-            "cloudiness": clouds.get("all"),
+            "cloudiness":
+                clouds.get(
+                    "all"
+                ),
 
-            "condition": weather.get("main"),
+            "rain_1h":
+                rain.get(
+                    "1h",
+                    0,
+                ),
 
-            "description": weather.get(
-                "description"
-            ),
+            "rain_3h":
+                rain.get(
+                    "3h",
+                    0,
+                ),
 
-            "icon": weather.get("icon"),
+            "snow_1h":
+                snow.get(
+                    "1h",
+                    0,
+                ),
 
-            "sunrise": sys_data.get(
-                "sunrise"
-            ),
+            "snow_3h":
+                snow.get(
+                    "3h",
+                    0,
+                ),
 
-            "sunset": sys_data.get(
-                "sunset"
-            ),
+            "condition":
+                weather.get(
+                    "main"
+                ),
 
-            "timezone_offset": data.get(
-                "timezone",
-                0,
-            ),
+            "description":
+                weather.get(
+                    "description"
+                ),
+
+            "icon":
+                weather.get(
+                    "icon"
+                ),
+
+            "sunrise":
+                sys_data.get(
+                    "sunrise"
+                ),
+
+            "sunset":
+                sys_data.get(
+                    "sunset"
+                ),
+
+            "timezone_offset":
+                data.get(
+                    "timezone",
+                    0,
+                ),
         }
 
     except httpx.TimeoutException:
         raise HTTPException(
             status_code=504,
             detail=(
-                "Current weather request timed out."
+                "Current weather is "
+                "temporarily unavailable."
             ),
         )
 
@@ -182,7 +287,8 @@ async def get_current_weather(
         raise HTTPException(
             status_code=502,
             detail=(
-                "Unable to connect to OpenWeather."
+                "Unable to connect to "
+                "the weather service."
             ),
         )
 
@@ -191,34 +297,34 @@ async def get_forecast(
     latitude: float,
     longitude: float,
 ):
-    """
-    OpenWeather Free API:
-
-    5 Day / 3 Hour Forecast
-
-    We transform this into:
-    - 8 forecast points representing ~24 hours
-    - Up to 5 daily summaries
-    """
-
     if not OPENWEATHER_API_KEY:
         raise HTTPException(
             status_code=500,
             detail=(
-                "OpenWeather API key is not configured."
+                "Weather service "
+                "is not configured."
             ),
         )
 
     params = {
         "lat": latitude,
         "lon": longitude,
-        "appid": OPENWEATHER_API_KEY,
+        "appid":
+            OPENWEATHER_API_KEY,
         "units": "metric",
     }
 
+    # Forecast responses are larger than
+    # current-weather responses, so give
+    # them a little more time.
+    timeout = httpx.Timeout(
+        20.0,
+        connect=8.0,
+    )
+
     try:
         async with httpx.AsyncClient(
-            timeout=12.0
+            timeout=timeout
         ) as client:
             response = await client.get(
                 OPENWEATHER_FORECAST_URL,
@@ -229,7 +335,8 @@ async def get_forecast(
             raise HTTPException(
                 status_code=502,
                 detail=(
-                    "OpenWeather rejected the API key."
+                    "Forecast service "
+                    "authentication failed."
                 ),
             )
 
@@ -237,8 +344,8 @@ async def get_forecast(
             raise HTTPException(
                 status_code=429,
                 detail=(
-                    "OpenWeather forecast request limit "
-                    "has been reached."
+                    "Forecast service is "
+                    "currently busy."
                 ),
             )
 
@@ -246,7 +353,8 @@ async def get_forecast(
             raise HTTPException(
                 status_code=502,
                 detail=(
-                    "Unable to retrieve weather forecast."
+                    "Forecast is temporarily "
+                    "unavailable."
                 ),
             )
 
@@ -267,95 +375,133 @@ async def get_forecast(
             0,
         )
 
-        #
-        # NEXT ~24 HOURS
-        #
-        # Each free forecast entry represents
-        # a three-hour interval.
-        #
-        # Eight entries = approximately 24 hours.
-        #
+        # ------------------------------
+        # Next 24 hours
+        # ------------------------------
 
         hourly = []
 
         for item in forecast_items[:8]:
-            main = item.get("main", {})
-            wind = item.get("wind", {})
-            clouds = item.get("clouds", {})
-            weather = get_weather_condition(
-                item
+            main = item.get(
+                "main",
+                {},
             )
 
-            timestamp = item.get("dt")
+            wind = item.get(
+                "wind",
+                {},
+            )
 
-            local_datetime = (
-                get_local_datetime(
-                    timestamp,
-                    timezone_offset,
+            clouds = item.get(
+                "clouds",
+                {},
+            )
+
+            weather = (
+                get_weather_condition(
+                    item
                 )
-                if timestamp
-                else None
             )
 
-            hourly.append(
-                {
-                    "timestamp": timestamp,
+            timestamp = item.get(
+                "dt"
+            )
 
-                    "local_datetime": (
-                        local_datetime.isoformat()
+            local_datetime = None
+
+            if timestamp:
+                local_datetime = (
+                    get_local_datetime(
+                        timestamp,
+                        timezone_offset,
+                    )
+                )
+
+            hourly.append({
+                "timestamp":
+                    timestamp,
+
+                "local_datetime":
+                    (
+                        local_datetime
+                        .isoformat()
                         if local_datetime
                         else None
                     ),
 
-                    "temperature": main.get(
+                "local_time":
+                    (
+                        local_datetime
+                        .strftime(
+                            "%I:%M %p"
+                        )
+                        if local_datetime
+                        else None
+                    ),
+
+                "temperature":
+                    main.get(
                         "temp"
                     ),
 
-                    "feels_like": main.get(
+                "feels_like":
+                    main.get(
                         "feels_like"
                     ),
 
-                    "temperature_min": main.get(
+                "temperature_min":
+                    main.get(
                         "temp_min"
                     ),
 
-                    "temperature_max": main.get(
+                "temperature_max":
+                    main.get(
                         "temp_max"
                     ),
 
-                    "pressure": main.get(
+                "pressure":
+                    main.get(
                         "pressure"
                     ),
 
-                    "humidity": main.get(
+                "humidity":
+                    main.get(
                         "humidity"
                     ),
 
-                    "visibility": item.get(
+                "visibility":
+                    item.get(
                         "visibility"
                     ),
 
-                    "wind_speed": wind.get(
+                "wind_speed":
+                    wind.get(
                         "speed"
                     ),
 
-                    "wind_direction": wind.get(
+                "wind_direction":
+                    wind.get(
                         "deg"
                     ),
 
-                    "wind_gust": wind.get(
+                "wind_gust":
+                    wind.get(
                         "gust"
                     ),
 
-                    "cloudiness": clouds.get(
+                "cloudiness":
+                    clouds.get(
                         "all"
                     ),
 
-                    "precipitation_probability": (
-                        item.get("pop", 0)
+                "precipitation_probability":
+                    item.get(
+                        "pop",
+                        0,
                     ),
 
-                    "rain": item.get(
+                "rain":
+                    item.get(
                         "rain",
                         {},
                     ).get(
@@ -363,7 +509,8 @@ async def get_forecast(
                         0,
                     ),
 
-                    "snow": item.get(
+                "snow":
+                    item.get(
                         "snow",
                         {},
                     ).get(
@@ -371,28 +518,34 @@ async def get_forecast(
                         0,
                     ),
 
-                    "condition": weather.get(
+                "condition":
+                    weather.get(
                         "main"
                     ),
 
-                    "description": weather.get(
+                "description":
+                    weather.get(
                         "description"
                     ),
 
-                    "icon": weather.get(
+                "icon":
+                    weather.get(
                         "icon"
                     ),
-                }
-            )
+            })
 
-        #
-        # CREATE DAILY SUMMARIES
-        #
+        # ------------------------------
+        # Group forecast by day
+        # ------------------------------
 
-        grouped_by_day = defaultdict(list)
+        grouped_by_day = defaultdict(
+            list
+        )
 
         for item in forecast_items:
-            timestamp = item.get("dt")
+            timestamp = item.get(
+                "dt"
+            )
 
             if not timestamp:
                 continue
@@ -405,21 +558,29 @@ async def get_forecast(
             )
 
             day_key = (
-                local_datetime.date().isoformat()
+                local_datetime
+                .date()
+                .isoformat()
             )
 
             grouped_by_day[
                 day_key
-            ].append(
-                {
-                    "data": item,
-                    "datetime": local_datetime,
-                }
-            )
+            ].append({
+                "data": item,
+                "datetime":
+                    local_datetime,
+            })
+
+        # ------------------------------
+        # 5-day outlook
+        # ------------------------------
 
         daily = []
 
-        for day_key, day_entries in list(
+        for (
+            day_key,
+            day_entries,
+        ) in list(
             grouped_by_day.items()
         )[:5]:
 
@@ -431,7 +592,9 @@ async def get_forecast(
             rainfall = []
 
             for entry in day_entries:
-                item = entry["data"]
+                item = entry[
+                    "data"
+                ]
 
                 main = item.get(
                     "main",
@@ -443,36 +606,40 @@ async def get_forecast(
                     {},
                 )
 
-                if (
-                    main.get("temp_min")
-                    is not None
-                ):
+                temp_min = main.get(
+                    "temp_min"
+                )
+
+                temp_max = main.get(
+                    "temp_max"
+                )
+
+                humidity = main.get(
+                    "humidity"
+                )
+
+                wind_speed = wind.get(
+                    "speed"
+                )
+
+                if temp_min is not None:
                     temperatures_min.append(
-                        main["temp_min"]
+                        temp_min
                     )
 
-                if (
-                    main.get("temp_max")
-                    is not None
-                ):
+                if temp_max is not None:
                     temperatures_max.append(
-                        main["temp_max"]
+                        temp_max
                     )
 
-                if (
-                    main.get("humidity")
-                    is not None
-                ):
+                if humidity is not None:
                     humidities.append(
-                        main["humidity"]
+                        humidity
                     )
 
-                if (
-                    wind.get("speed")
-                    is not None
-                ):
+                if wind_speed is not None:
                     wind_speeds.append(
-                        wind["speed"]
+                        wind_speed
                     )
 
                 precipitation_probabilities.append(
@@ -492,68 +659,83 @@ async def get_forecast(
                     )
                 )
 
-            #
-            # Choose the forecast entry closest
-            # to noon as the representative
-            # condition/icon for the day.
-            #
-
             representative = min(
                 day_entries,
-                key=lambda entry: abs(
-                    entry["datetime"].hour - 12
-                ),
+                key=lambda entry:
+                    abs(
+                        entry[
+                            "datetime"
+                        ].hour - 12
+                    ),
             )
 
             representative_data = (
-                representative["data"]
+                representative[
+                    "data"
+                ]
             )
 
-            weather = get_weather_condition(
-                representative_data
+            weather = (
+                get_weather_condition(
+                    representative_data
+                )
             )
 
-            daily.append(
-                {
-                    "date": day_key,
+            daily.append({
+                "date":
+                    day_key,
 
-                    "timestamp": (
-                        representative_data.get(
-                            "dt"
+                "timestamp":
+                    representative_data
+                    .get("dt"),
+
+                "temperature_min":
+                    (
+                        min(
+                            temperatures_min
                         )
-                    ),
-
-                    "temperature_min": (
-                        min(temperatures_min)
                         if temperatures_min
                         else None
                     ),
 
-                    "temperature_max": (
-                        max(temperatures_max)
+                "temperature_max":
+                    (
+                        max(
+                            temperatures_max
+                        )
                         if temperatures_max
                         else None
                     ),
 
-                    "humidity": (
+                "humidity":
+                    (
                         round(
-                            sum(humidities)
-                            / len(humidities)
+                            sum(
+                                humidities
+                            )
+                            /
+                            len(
+                                humidities
+                            )
                         )
                         if humidities
                         else None
                     ),
 
-                    "wind_speed": (
+                "wind_speed":
+                    (
                         round(
-                            max(wind_speeds),
+                            max(
+                                wind_speeds
+                            ),
                             1,
                         )
                         if wind_speeds
                         else None
                     ),
 
-                    "precipitation_probability": (
+                "precipitation_probability":
+                    (
                         max(
                             precipitation_probabilities
                         )
@@ -561,54 +743,69 @@ async def get_forecast(
                         else 0
                     ),
 
-                    "rain": round(
-                        sum(rainfall),
+                "rain":
+                    round(
+                        sum(
+                            rainfall
+                        ),
                         2,
                     ),
 
-                    "condition": weather.get(
+                "condition":
+                    weather.get(
                         "main"
                     ),
 
-                    "description": weather.get(
+                "description":
+                    weather.get(
                         "description"
                     ),
 
-                    "icon": weather.get(
+                "icon":
+                    weather.get(
                         "icon"
                     ),
-                }
-            )
+            })
 
         return {
-            "timezone_offset": timezone_offset,
+            "timezone_offset":
+                timezone_offset,
 
             "city": {
-                "name": city.get("name"),
+                "name":
+                    city.get(
+                        "name"
+                    ),
 
-                "country": city.get(
-                    "country"
-                ),
+                "country":
+                    city.get(
+                        "country"
+                    ),
 
-                "sunrise": city.get(
-                    "sunrise"
-                ),
+                "sunrise":
+                    city.get(
+                        "sunrise"
+                    ),
 
-                "sunset": city.get(
-                    "sunset"
-                ),
+                "sunset":
+                    city.get(
+                        "sunset"
+                    ),
             },
 
-            "hourly": hourly,
+            "hourly":
+                hourly,
 
-            "daily": daily,
+            "daily":
+                daily,
         }
 
     except httpx.TimeoutException:
         raise HTTPException(
             status_code=504,
             detail=(
-                "Forecast request timed out."
+                "Forecast is temporarily "
+                "unavailable."
             ),
         )
 
@@ -616,7 +813,7 @@ async def get_forecast(
         raise HTTPException(
             status_code=502,
             detail=(
-                "Unable to connect to the "
-                "forecast service."
+                "Unable to connect to "
+                "the forecast service."
             ),
         )
