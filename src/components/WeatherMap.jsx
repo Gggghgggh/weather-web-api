@@ -7,10 +7,12 @@ import {
 import L from 'leaflet';
 
 import {
+  CircleMarker,
   MapContainer,
   Marker,
   Popup,
   TileLayer,
+  Tooltip,
   useMap,
   useMapEvents,
 } from 'react-leaflet';
@@ -22,6 +24,7 @@ import {
   HelpCircle,
   Layers3,
   LoaderCircle,
+  MapPin,
   Thermometer,
   Wind,
   X,
@@ -39,37 +42,31 @@ import markerShadow
   from 'leaflet/dist/images/marker-shadow.png';
 
 
-const defaultMarkerIcon =
-  L.icon({
-    iconUrl:
-      markerIcon,
+const defaultMarkerIcon = L.icon({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
 
-    iconRetinaUrl:
-      markerIcon2x,
+  iconSize: [
+    25,
+    41,
+  ],
 
-    shadowUrl:
-      markerShadow,
+  iconAnchor: [
+    12,
+    41,
+  ],
 
-    iconSize: [
-      25,
-      41,
-    ],
+  popupAnchor: [
+    1,
+    -34,
+  ],
 
-    iconAnchor: [
-      12,
-      41,
-    ],
-
-    popupAnchor: [
-      1,
-      -34,
-    ],
-
-    shadowSize: [
-      41,
-      41,
-    ],
-  });
+  shadowSize: [
+    41,
+    41,
+  ],
+});
 
 
 L.Marker.prototype.options.icon =
@@ -78,382 +75,208 @@ L.Marker.prototype.options.icon =
 
 const WEATHER_LAYERS = [
   {
-    id:
-      'temperature',
-
-    label:
-      'Temperature',
-
-    question:
-      'How hot or cold is it?',
-
-    icon:
-      Thermometer,
+    id: 'temperature',
+    label: 'Temperature',
+    question: 'How hot or cold is it?',
+    icon: Thermometer,
 
     legend: [
       {
-        value:
-          '-20°C',
-
-        label:
-          'Very cold',
-
-        color:
-          'rgb(32, 140, 236)',
+        value: '-20°C',
+        label: 'Very cold',
+        color: 'rgb(32, 140, 236)',
       },
 
       {
-        value:
-          '0°C',
-
-        label:
-          'Cold',
-
-        color:
-          'rgb(35, 221, 221)',
+        value: '0°C',
+        label: 'Cold',
+        color: 'rgb(35, 221, 221)',
       },
 
       {
-        value:
-          '10°C',
-
-        label:
-          'Cool',
-
-        color:
-          'rgb(194, 255, 40)',
+        value: '10°C',
+        label: 'Cool',
+        color: 'rgb(194, 255, 40)',
       },
 
       {
-        value:
-          '20°C',
-
-        label:
-          'Warm',
-
-        color:
-          'rgb(255, 240, 40)',
+        value: '20°C',
+        label: 'Warm',
+        color: 'rgb(255, 240, 40)',
       },
 
       {
-        value:
-          '25°C',
-
-        label:
-          'Quite warm',
-
-        color:
-          'rgb(255, 194, 40)',
+        value: '25°C',
+        label: 'Quite warm',
+        color: 'rgb(255, 194, 40)',
       },
 
       {
-        value:
-          '30°C+',
-
-        label:
-          'Hot',
-
-        color:
-          'rgb(252, 128, 20)',
+        value: '30°C+',
+        label: 'Hot',
+        color: 'rgb(252, 128, 20)',
       },
     ],
   },
 
-
   {
-    id:
-      'precipitation',
-
-    label:
-      'Rain',
-
-    question:
-      'Where is it raining?',
-
-    icon:
-      CloudRain,
+    id: 'precipitation',
+    label: 'Rain',
+    question: 'Where is it raining?',
+    icon: CloudRain,
 
     legend: [
       {
-        value:
-          '0 mm',
-
-        label:
-          'No rain',
-
-        color:
-          'rgba(225, 200, 100, 0.25)',
+        value: '0 mm',
+        label: 'No rain',
+        color: 'rgba(225, 200, 100, 0.25)',
       },
 
       {
-        value:
-          '0.5 mm',
-
-        label:
-          'Very light',
-
-        color:
-          'rgba(120, 120, 190, 0.35)',
+        value: '0.5 mm',
+        label: 'Very light',
+        color: 'rgba(120, 120, 190, 0.35)',
       },
 
       {
-        value:
-          '1 mm',
-
-        label:
-          'Light rain',
-
-        color:
-          'rgba(110, 110, 205, 0.55)',
+        value: '1 mm',
+        label: 'Light rain',
+        color: 'rgba(110, 110, 205, 0.55)',
       },
 
       {
-        value:
-          '10 mm',
-
-        label:
-          'Heavy rain',
-
-        color:
-          'rgb(80, 80, 225)',
+        value: '10 mm',
+        label: 'Heavy rain',
+        color: 'rgb(80, 80, 225)',
       },
 
       {
-        value:
-          '140 mm',
-
-        label:
-          'Very heavy',
-
-        color:
-          'rgb(20, 20, 255)',
+        value: '140 mm',
+        label: 'Very heavy',
+        color: 'rgb(20, 20, 255)',
       },
     ],
   },
 
-
   {
-    id:
-      'clouds',
-
-    label:
-      'Clouds',
-
-    question:
-      'How cloudy is the sky?',
-
-    icon:
-      Cloud,
+    id: 'clouds',
+    label: 'Clouds',
+    question: 'How cloudy is the sky?',
+    icon: Cloud,
 
     legend: [
       {
-        value:
-          '0%',
-
-        label:
-          'Clear',
-
-        color:
-          'rgba(255, 255, 255, 0.08)',
+        value: '0%',
+        label: 'Clear',
+        color: 'rgba(255, 255, 255, 0.08)',
       },
 
       {
-        value:
-          '25%',
-
-        label:
-          'Few clouds',
-
-        color:
-          'rgba(255, 255, 255, 0.25)',
+        value: '25%',
+        label: 'Few clouds',
+        color: 'rgba(255, 255, 255, 0.25)',
       },
 
       {
-        value:
-          '50%',
-
-        label:
-          'Half cloudy',
-
-        color:
-          'rgba(255, 255, 255, 0.45)',
+        value: '50%',
+        label: 'Half cloudy',
+        color: 'rgba(255, 255, 255, 0.45)',
       },
 
       {
-        value:
-          '75%',
-
-        label:
-          'Mostly cloudy',
-
-        color:
-          'rgba(255, 255, 255, 0.68)',
+        value: '75%',
+        label: 'Mostly cloudy',
+        color: 'rgba(255, 255, 255, 0.68)',
       },
 
       {
-        value:
-          '100%',
-
-        label:
-          'Fully cloudy',
-
-        color:
-          'rgba(255, 255, 255, 0.92)',
+        value: '100%',
+        label: 'Fully cloudy',
+        color: 'rgba(255, 255, 255, 0.92)',
       },
     ],
   },
 
-
   {
-    id:
-      'wind',
-
-    label:
-      'Wind',
-
-    question:
-      'How strong is the wind?',
-
-    icon:
-      Wind,
+    id: 'wind',
+    label: 'Wind',
+    question: 'How strong is the wind?',
+    icon: Wind,
 
     legend: [
       {
-        value:
-          '1 m/s',
-
-        label:
-          'Very gentle',
-
-        color:
-          'rgb(235, 242, 255)',
+        value: '1 m/s',
+        label: 'Very gentle',
+        color: 'rgb(235, 242, 255)',
       },
 
       {
-        value:
-          '5 m/s',
-
-        label:
-          'Gentle',
-
-        color:
-          'rgb(155, 220, 255)',
+        value: '5 m/s',
+        label: 'Gentle',
+        color: 'rgb(155, 220, 255)',
       },
 
       {
-        value:
-          '15 m/s',
-
-        label:
-          'Strong',
-
-        color:
-          'rgb(70, 180, 255)',
+        value: '15 m/s',
+        label: 'Strong',
+        color: 'rgb(70, 180, 255)',
       },
 
       {
-        value:
-          '25 m/s',
-
-        label:
-          'Very strong',
-
-        color:
-          'rgb(120, 90, 220)',
+        value: '25 m/s',
+        label: 'Very strong',
+        color: 'rgb(120, 90, 220)',
       },
 
       {
-        value:
-          '50+ m/s',
-
-        label:
-          'Extreme',
-
-        color:
-          'rgb(170, 45, 150)',
+        value: '50+ m/s',
+        label: 'Extreme',
+        color: 'rgb(170, 45, 150)',
       },
     ],
   },
 
-
   {
-    id:
-      'pressure',
-
-    label:
-      'Air Pressure',
-
-    question:
-      'How heavy is the air?',
-
-    icon:
-      Gauge,
+    id: 'pressure',
+    label: 'Air Pressure',
+    question: 'How heavy is the air?',
+    icon: Gauge,
 
     legend: [
       {
-        value:
-          '940 hPa',
-
-        label:
-          'Very low',
-
-        color:
-          'rgb(0, 115, 255)',
+        value: '940 hPa',
+        label: 'Very low',
+        color: 'rgb(0, 115, 255)',
       },
 
       {
-        value:
-          '980 hPa',
-
-        label:
-          'Low',
-
-        color:
-          'rgb(70, 190, 255)',
+        value: '980 hPa',
+        label: 'Low',
+        color: 'rgb(70, 190, 255)',
       },
 
       {
-        value:
-          '1000 hPa',
-
-        label:
-          'Normal-low',
-
-        color:
-          'rgb(120, 220, 170)',
+        value: '1000 hPa',
+        label: 'Normal-low',
+        color: 'rgb(120, 220, 170)',
       },
 
       {
-        value:
-          '1010 hPa',
-
-        label:
-          'Normal',
-
-        color:
-          'rgb(230, 235, 120)',
+        value: '1010 hPa',
+        label: 'Normal',
+        color: 'rgb(230, 235, 120)',
       },
 
       {
-        value:
-          '1020 hPa',
-
-        label:
-          'High',
-
-        color:
-          'rgb(255, 175, 80)',
+        value: '1020 hPa',
+        label: 'High',
+        color: 'rgb(255, 175, 80)',
       },
 
       {
-        value:
-          '1060+ hPa',
-
-        label:
-          'Very high',
-
-        color:
-          'rgb(230, 80, 70)',
+        value: '1060+ hPa',
+        label: 'Very high',
+        color: 'rgb(230, 80, 70)',
       },
     ],
   },
@@ -463,100 +286,62 @@ const WEATHER_LAYERS = [
 function getTemperatureMeaning(
   value
 ) {
-  if (
-    value == null
-  ) {
+  if (value == null) {
     return null;
   }
 
-
-  if (
-    value < 5
-  ) {
+  if (value < 5) {
     return {
-      label:
-        'Very cold',
-
-      message:
-        'It is very cold here.',
-
+      label: 'Very cold',
+      message: 'It is very cold here.',
       advice:
         'Wear warm clothing if you are going outside.',
     };
   }
 
-
-  if (
-    value < 15
-  ) {
+  if (value < 15) {
     return {
-      label:
-        'Cool',
-
-      message:
-        'The air feels cool.',
-
+      label: 'Cool',
+      message: 'The air feels cool.',
       advice:
         'A light jacket may be useful.',
     };
   }
 
-
-  if (
-    value < 23
-  ) {
+  if (value < 23) {
     return {
-      label:
-        'Comfortable',
-
+      label: 'Comfortable',
       message:
         'The temperature is comfortable.',
-
       advice:
         'Conditions should feel pleasant for most outdoor activities.',
     };
   }
 
-
-  if (
-    value < 28
-  ) {
+  if (value < 28) {
     return {
-      label:
-        'Warm',
-
+      label: 'Warm',
       message:
         'It is comfortably warm here.',
-
       advice:
         'Carry water if you will be outside for a long time.',
     };
   }
 
-
-  if (
-    value < 33
-  ) {
+  if (value < 33) {
     return {
-      label:
-        'Hot',
-
+      label: 'Hot',
       message:
         'It is hot outside.',
-
       advice:
         'Stay hydrated and look for shade when needed.',
     };
   }
 
-
   return {
-    label:
-      'Very hot',
-
+    label: 'Very hot',
     message:
       'The temperature is very high.',
-
     advice:
       'Limit long periods in direct sunlight and drink enough water.',
   };
@@ -566,84 +351,54 @@ function getTemperatureMeaning(
 function getRainMeaning(
   value
 ) {
-  if (
-    value == null
-  ) {
+  if (value == null) {
     return null;
   }
 
-
-  if (
-    value <= 0
-  ) {
+  if (value <= 0) {
     return {
-      label:
-        'No rain',
-
+      label: 'No rain',
       message:
         'No recent rain is being reported here.',
-
       advice:
         'Rain protection is probably not needed right now.',
     };
   }
 
-
-  if (
-    value < 1
-  ) {
+  if (value < 1) {
     return {
-      label:
-        'Very light rain',
-
+      label: 'Very light rain',
       message:
         'Only a small amount of rain is falling.',
-
       advice:
         'You may only need light rain protection.',
     };
   }
 
-
-  if (
-    value < 4
-  ) {
+  if (value < 4) {
     return {
-      label:
-        'Light rain',
-
+      label: 'Light rain',
       message:
         'There is noticeable rain in this area.',
-
       advice:
         'An umbrella or raincoat may be useful.',
     };
   }
 
-
-  if (
-    value < 10
-  ) {
+  if (value < 10) {
     return {
-      label:
-        'Moderate rain',
-
+      label: 'Moderate rain',
       message:
         'Rain is falling steadily.',
-
       advice:
         'Take rain protection and expect wet roads or paths.',
     };
   }
 
-
   return {
-    label:
-      'Heavy rain',
-
+    label: 'Heavy rain',
     message:
       'A large amount of rain is falling.',
-
     advice:
       'Use extra care outdoors and when travelling.',
   };
@@ -653,84 +408,54 @@ function getRainMeaning(
 function getCloudMeaning(
   value
 ) {
-  if (
-    value == null
-  ) {
+  if (value == null) {
     return null;
   }
 
-
-  if (
-    value < 15
-  ) {
+  if (value < 15) {
     return {
-      label:
-        'Clear sky',
-
+      label: 'Clear sky',
       message:
         'There are very few clouds in the sky.',
-
       advice:
         'Expect plenty of direct sunshine.',
     };
   }
 
-
-  if (
-    value < 40
-  ) {
+  if (value < 40) {
     return {
-      label:
-        'A few clouds',
-
+      label: 'A few clouds',
       message:
         'There are some clouds, but much of the sky is still clear.',
-
       advice:
         'Sunshine should still be common.',
     };
   }
 
-
-  if (
-    value < 70
-  ) {
+  if (value < 70) {
     return {
-      label:
-        'Partly cloudy',
-
+      label: 'Partly cloudy',
       message:
         'Clouds cover about half of the sky.',
-
       advice:
         'Expect a mix of sunshine and cloud.',
     };
   }
 
-
-  if (
-    value < 90
-  ) {
+  if (value < 90) {
     return {
-      label:
-        'Mostly cloudy',
-
+      label: 'Mostly cloudy',
       message:
         'Most of the sky is covered by clouds.',
-
       advice:
         'Expect less direct sunshine.',
     };
   }
 
-
   return {
-    label:
-      'Overcast',
-
+    label: 'Overcast',
     message:
       'Almost the whole sky is covered by clouds.',
-
     advice:
       'The sky will likely look grey with little direct sunshine.',
   };
@@ -740,84 +465,54 @@ function getCloudMeaning(
 function getWindMeaning(
   value
 ) {
-  if (
-    value == null
-  ) {
+  if (value == null) {
     return null;
   }
 
-
-  if (
-    value < 2
-  ) {
+  if (value < 2) {
     return {
-      label:
-        'Very gentle',
-
+      label: 'Very gentle',
       message:
         'The air is almost calm.',
-
       advice:
         'You may barely notice the wind.',
     };
   }
 
-
-  if (
-    value < 5
-  ) {
+  if (value < 5) {
     return {
-      label:
-        'Gentle breeze',
-
+      label: 'Gentle breeze',
       message:
         'There is a light breeze.',
-
       advice:
         'The wind should feel comfortable outdoors.',
     };
   }
 
-
-  if (
-    value < 10
-  ) {
+  if (value < 10) {
     return {
-      label:
-        'Breezy',
-
+      label: 'Breezy',
       message:
         'The wind is noticeable.',
-
       advice:
         'Secure light outdoor items such as papers or hats.',
     };
   }
 
-
-  if (
-    value < 17
-  ) {
+  if (value < 17) {
     return {
-      label:
-        'Strong wind',
-
+      label: 'Strong wind',
       message:
         'The wind is strong.',
-
       advice:
         'Be careful with loose outdoor objects.',
     };
   }
 
-
   return {
-    label:
-      'Very strong wind',
-
+    label: 'Very strong wind',
     message:
       'The wind is very strong.',
-
     advice:
       'Use extra care outdoors and avoid unsecured objects.',
   };
@@ -827,68 +522,44 @@ function getWindMeaning(
 function getPressureMeaning(
   value
 ) {
-  if (
-    value == null
-  ) {
+  if (value == null) {
     return null;
   }
 
-
-  if (
-    value < 990
-  ) {
+  if (value < 990) {
     return {
-      label:
-        'Low pressure',
-
+      label: 'Low pressure',
       message:
         'The air pressure is lower than usual.',
-
       advice:
         'Lower pressure can sometimes come with unsettled weather.',
     };
   }
 
-
-  if (
-    value < 1015
-  ) {
+  if (value < 1015) {
     return {
-      label:
-        'Normal pressure',
-
+      label: 'Normal pressure',
       message:
         'The air pressure is within a common range.',
-
       advice:
         'This reading is close to normal atmospheric pressure.',
     };
   }
 
-
-  if (
-    value < 1030
-  ) {
+  if (value < 1030) {
     return {
-      label:
-        'High pressure',
-
+      label: 'High pressure',
       message:
         'The air pressure is higher than usual.',
-
       advice:
         'Higher pressure is often linked with calmer weather.',
     };
   }
 
-
   return {
-    label:
-      'Very high pressure',
-
+    label: 'Very high pressure',
     message:
       'The air pressure is quite high.',
-
     advice:
       'Conditions may remain relatively stable and calm.',
   };
@@ -906,14 +577,12 @@ function getLayerReading(
     return null;
   }
 
-
   if (
     layer ===
     'temperature'
   ) {
     const value =
       weather.temperature;
-
 
     return {
       value:
@@ -928,7 +597,6 @@ function getLayerReading(
     };
   }
 
-
   if (
     layer ===
     'precipitation'
@@ -938,7 +606,6 @@ function getLayerReading(
       weather.rain_3h ??
       0;
 
-
     return {
       value:
         `${Number(
@@ -947,13 +614,10 @@ function getLayerReading(
 
       meaning:
         getRainMeaning(
-          Number(
-            value
-          )
+          Number(value)
         ),
     };
   }
-
 
   if (
     layer ===
@@ -961,7 +625,6 @@ function getLayerReading(
   ) {
     const value =
       weather.cloudiness;
-
 
     return {
       value:
@@ -976,14 +639,12 @@ function getLayerReading(
     };
   }
 
-
   if (
     layer ===
     'wind'
   ) {
     const value =
       weather.wind_speed;
-
 
     return {
       value:
@@ -1000,7 +661,6 @@ function getLayerReading(
     };
   }
 
-
   if (
     layer ===
     'pressure'
@@ -1008,11 +668,12 @@ function getLayerReading(
     const value =
       weather.pressure;
 
-
     return {
       value:
         value != null
-          ? `${Math.round(value)} hPa`
+          ? `${Math.round(
+              value
+            )} hPa`
           : '—',
 
       meaning:
@@ -1022,8 +683,53 @@ function getLayerReading(
     };
   }
 
-
   return null;
+}
+
+
+function getNearbyPlaceColor(
+  category
+) {
+  switch (category) {
+    case 'hospital':
+      return '#ef4444';
+
+    case 'pharmacy':
+      return '#10b981';
+
+    case 'police':
+      return '#3b82f6';
+
+    case 'school':
+      return '#8b5cf6';
+
+    case 'restaurant':
+      return '#f97316';
+
+    case 'fuel':
+      return '#eab308';
+
+    case 'atm':
+      return '#06b6d4';
+
+    case 'hotel':
+      return '#ec4899';
+
+    case 'clinic':
+      return '#14b8a6';
+
+    case 'bank':
+      return '#6366f1';
+
+    case 'cafe':
+      return '#a16207';
+
+    case 'supermarket':
+      return '#22c55e';
+
+    default:
+      return '#0ea5e9';
+  }
 }
 
 
@@ -1033,14 +739,12 @@ function MapController({
   const map =
     useMap();
 
-
   useEffect(() => {
     if (
       !selectedLocation
     ) {
       return;
     }
-
 
     map.flyTo(
       [
@@ -1049,8 +753,7 @@ function MapController({
       ],
       15,
       {
-        duration:
-          1.2,
+        duration: 1.2,
       }
     );
 
@@ -1058,7 +761,6 @@ function MapController({
     map,
     selectedLocation,
   ]);
-
 
   return null;
 }
@@ -1079,7 +781,6 @@ function MapClickHandler({
     },
   });
 
-
   return null;
 }
 
@@ -1088,24 +789,15 @@ function WeatherOverlay({
   activeLayer,
   onTileError,
 }) {
-  if (
-    !activeLayer
-  ) {
+  if (!activeLayer) {
     return null;
   }
 
-
   return (
     <TileLayer
-      key={
-        activeLayer
-      }
-      url={
-        `/api/weather/tiles/${activeLayer}/{z}/{x}/{y}.png`
-      }
-      opacity={
-        0.67
-      }
+      key={activeLayer}
+      url={`/api/weather/tiles/${activeLayer}/{z}/{x}/{y}.png`}
+      opacity={0.67}
       attribution="Weather data © OpenWeather"
       eventHandlers={{
         tileerror() {
@@ -1137,9 +829,7 @@ function WeatherLayerControl({
 
     onLayerChange?.();
 
-    setOpen(
-      false
-    );
+    setOpen(false);
   }
 
 
@@ -1156,16 +846,13 @@ function WeatherLayerControl({
         }
         className="map-control-button flex h-11 items-center gap-2 rounded-2xl border px-3 text-xs font-semibold shadow-lg"
       >
-
         <Layers3
           size={16}
         />
 
-
         <span className="hidden sm:inline">
           Weather layers
         </span>
-
       </button>
 
 
@@ -1190,9 +877,7 @@ function WeatherLayerControl({
             <button
               type="button"
               onClick={() =>
-                setOpen(
-                  false
-                )
+                setOpen(false)
               }
               className="secondary-text rounded-xl p-2"
               aria-label="Close weather layers"
@@ -1212,17 +897,13 @@ function WeatherLayerControl({
                 const Icon =
                   layer.icon;
 
-
                 const isActive =
                   activeLayer ===
                   layer.id;
 
-
                 return (
                   <button
-                    key={
-                      layer.id
-                    }
+                    key={layer.id}
                     type="button"
                     onClick={() =>
                       selectLayer(
@@ -1235,28 +916,21 @@ function WeatherLayerControl({
                         : ''
                     }`}
                   >
-
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border">
-
                       <Icon
                         size={16}
                       />
-
                     </div>
 
 
                     <div className="min-w-0 flex-1">
 
                       <p className="primary-text text-xs font-semibold">
-                        {
-                          layer.label
-                        }
+                        {layer.label}
                       </p>
 
                       <p className="secondary-text mt-1 text-[9px]">
-                        {
-                          layer.question
-                        }
+                        {layer.question}
                       </p>
 
                     </div>
@@ -1280,9 +954,7 @@ function WeatherLayerControl({
             <button
               type="button"
               onClick={() =>
-                selectLayer(
-                  null
-                )
+                selectLayer(null)
               }
               className="secondary-text mt-3 flex w-full items-center justify-center rounded-2xl border px-3 py-2.5 text-[10px] font-semibold"
             >
@@ -1301,12 +973,9 @@ function WeatherLayerControl({
 function WeatherLegend({
   activeLayer,
 }) {
-  if (
-    !activeLayer
-  ) {
+  if (!activeLayer) {
     return null;
   }
-
 
   const layer =
     WEATHER_LAYERS.find(
@@ -1315,10 +984,7 @@ function WeatherLegend({
         activeLayer
     );
 
-
-  if (
-    !layer
-  ) {
+  if (!layer) {
     return null;
   }
 
@@ -1341,9 +1007,7 @@ function WeatherLegend({
           </p>
 
           <p className="secondary-text mt-0.5 text-[8px]">
-            {
-              layer.label
-            }
+            {layer.label}
           </p>
 
         </div>
@@ -1356,9 +1020,7 @@ function WeatherLegend({
         {layer.legend.map(
           (item) => (
             <div
-              key={
-                `${item.value}-${item.label}`
-              }
+              key={`${item.value}-${item.label}`}
               className="flex items-center gap-2"
             >
 
@@ -1374,15 +1036,11 @@ function WeatherLegend({
               <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
 
                 <span className="secondary-text text-[8px]">
-                  {
-                    item.label
-                  }
+                  {item.label}
                 </span>
 
                 <span className="primary-text text-[8px] font-semibold">
-                  {
-                    item.value
-                  }
+                  {item.value}
                 </span>
 
               </div>
@@ -1417,7 +1075,6 @@ function SelectedReadingCard({
     return null;
   }
 
-
   const layer =
     WEATHER_LAYERS.find(
       (item) =>
@@ -1425,20 +1082,15 @@ function SelectedReadingCard({
         activeLayer
     );
 
-
-  if (
-    !layer
-  ) {
+  if (!layer) {
     return null;
   }
-
 
   const reading =
     getLayerReading(
       activeLayer,
       weather
     );
-
 
   const Icon =
     layer.icon;
@@ -1514,16 +1166,12 @@ function SelectedReadingCard({
           <div className="mt-4">
 
             <p className="secondary-text text-[9px] font-medium">
-              {
-                layer.label
-              }
+              {layer.label}
             </p>
 
 
             <p className="primary-text mt-1 text-2xl font-semibold tracking-tight">
-              {
-                reading.value
-              }
+              {reading.value}
             </p>
 
 
@@ -1532,14 +1180,18 @@ function SelectedReadingCard({
 
                 <p className="primary-text mt-3 text-xs font-semibold">
                   {
-                    reading.meaning.label
+                    reading
+                      .meaning
+                      .label
                   }
                 </p>
 
 
                 <p className="secondary-text mt-1 text-[10px] leading-5">
                   {
-                    reading.meaning.message
+                    reading
+                      .meaning
+                      .message
                   }
                 </p>
 
@@ -1548,7 +1200,9 @@ function SelectedReadingCard({
 
                   <p className="secondary-text text-[9px] leading-4">
                     {
-                      reading.meaning.advice
+                      reading
+                        .meaning
+                        .advice
                     }
                   </p>
 
@@ -1565,12 +1219,153 @@ function SelectedReadingCard({
 }
 
 
+function NearbyPlaceMarkers({
+  places,
+}) {
+  if (
+    !places ||
+    places.length === 0
+  ) {
+    return null;
+  }
+
+
+  return places.map(
+    (nearbyPlace) => {
+      const color =
+        getNearbyPlaceColor(
+          nearbyPlace.category
+        );
+
+
+      return (
+        <CircleMarker
+          key={nearbyPlace.id}
+          center={[
+            nearbyPlace.latitude,
+            nearbyPlace.longitude,
+          ]}
+          radius={6}
+          pathOptions={{
+            color,
+            fillColor: color,
+            fillOpacity: 0.9,
+            weight: 2,
+          }}
+        >
+
+          <Tooltip
+            direction="top"
+            offset={[
+              0,
+              -6,
+            ]}
+          >
+            <div className="min-w-[150px]">
+
+              <p className="font-semibold">
+                {nearbyPlace.name}
+              </p>
+
+
+              <p className="mt-1 text-xs">
+                {
+                  nearbyPlace
+                    .category_label
+                }
+              </p>
+
+
+              <p className="mt-1 text-xs">
+                {
+                  nearbyPlace
+                    .distance_km
+                } km away
+              </p>
+
+
+              {nearbyPlace.address && (
+                <p className="mt-1 max-w-[190px] text-xs">
+                  {nearbyPlace.address}
+                </p>
+              )}
+
+            </div>
+          </Tooltip>
+
+
+          <Popup>
+            <div className="min-w-[180px]">
+
+              <p className="font-semibold">
+                {nearbyPlace.name}
+              </p>
+
+
+              <p className="mt-1 text-xs">
+                {
+                  nearbyPlace
+                    .category_label
+                }
+              </p>
+
+
+              <p className="mt-2 text-xs">
+                Distance:{' '}
+                <strong>
+                  {
+                    nearbyPlace
+                      .distance_km
+                  } km
+                </strong>
+              </p>
+
+
+              {nearbyPlace.address && (
+                <p className="mt-2 text-xs">
+                  {nearbyPlace.address}
+                </p>
+              )}
+
+
+              {nearbyPlace.opening_hours && (
+                <p className="mt-2 text-xs">
+                  Hours:{' '}
+                  {
+                    nearbyPlace
+                      .opening_hours
+                  }
+                </p>
+              )}
+
+
+              {nearbyPlace.phone && (
+                <p className="mt-2 text-xs">
+                  Phone:{' '}
+                  {
+                    nearbyPlace
+                      .phone
+                  }
+                </p>
+              )}
+
+            </div>
+          </Popup>
+
+        </CircleMarker>
+      );
+    }
+  );
+}
+
+
 function WeatherMap({
   selectedLocation,
   onLocationSelect,
   weather,
   place,
   weatherLoading = false,
+  nearbyPlaces = [],
 }) {
   const defaultCenter = [
     -1.286389,
@@ -1579,9 +1374,10 @@ function WeatherMap({
 
 
   /*
+   * IMPORTANT:
    * No weather layer is selected
-   * when the application loads
-   * or when the page is refreshed.
+   * automatically after page load
+   * or refresh.
    */
   const [
     activeLayer,
@@ -1609,7 +1405,6 @@ function WeatherMap({
           selectedLocation.latitude
         );
 
-
       const longitude =
         Number(
           selectedLocation.longitude
@@ -1619,8 +1414,7 @@ function WeatherMap({
       if (
         Number.isNaN(
           latitude
-        )
-        ||
+        ) ||
         Number.isNaN(
           longitude
         )
@@ -1647,18 +1441,14 @@ function WeatherMap({
 
 
   function handleLayerChange() {
-    setLayerError(
-      ''
-    );
+    setLayerError('');
   }
 
 
   function handleMapLocationSelect(
     location
   ) {
-    setLayerError(
-      ''
-    );
+    setLayerError('');
 
     onLocationSelect?.(
       location
@@ -1670,33 +1460,37 @@ function WeatherMap({
     <div className="relative h-full w-full">
 
       <MapContainer
-        center={
-          defaultCenter
-        }
-        zoom={
-          7
-        }
-        scrollWheelZoom={
-          true
-        }
+        center={defaultCenter}
+        zoom={7}
+        scrollWheelZoom={true}
         className="h-full w-full"
       >
 
+        {/* =====================
+            OPENSTREETMAP
+        ====================== */}
+
         <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
+          attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
 
+        {/* =====================
+            WEATHER OVERLAY
+        ====================== */}
+
         <WeatherOverlay
-          activeLayer={
-            activeLayer
-          }
+          activeLayer={activeLayer}
           onTileError={
             handleTileError
           }
         />
 
+
+        {/* =====================
+            MAP CLICK HANDLER
+        ====================== */}
 
         <MapClickHandler
           onLocationSelect={
@@ -1705,12 +1499,29 @@ function WeatherMap({
         />
 
 
+        {/* =====================
+            MOVE TO LOCATION
+        ====================== */}
+
         <MapController
           selectedLocation={
             coordinates
           }
         />
 
+
+        {/* =====================
+            NEARBY POIs
+        ====================== */}
+
+        <NearbyPlaceMarkers
+          places={nearbyPlaces}
+        />
+
+
+        {/* =====================
+            SELECTED LOCATION
+        ====================== */}
 
         {coordinates && (
           <Marker
@@ -1722,31 +1533,97 @@ function WeatherMap({
 
             <Popup>
 
-              <div className="min-w-[150px]">
+              <div className="min-w-[170px]">
 
-                <p className="font-semibold">
-                  {
-                    place?.name ||
-                    place?.city ||
-                    place?.town ||
-                    place?.suburb ||
-                    place?.village ||
-                    'Selected location'
-                  }
-                </p>
+                <div className="flex items-start gap-2">
+
+                  <MapPin
+                    size={14}
+                    className="mt-0.5 shrink-0"
+                  />
 
 
-                <p className="mt-1 text-xs">
-                  {
-                    coordinates.latitude
-                      .toFixed(5)
-                  }
-                  ,{' '}
-                  {
-                    coordinates.longitude
-                      .toFixed(5)
-                  }
-                </p>
+                  <div>
+
+                    <p className="font-semibold">
+                      {
+                        place?.name ||
+                        place?.city ||
+                        place?.town ||
+                        place?.suburb ||
+                        place?.village ||
+                        'Selected location'
+                      }
+                    </p>
+
+
+                    <p className="mt-1 text-xs">
+                      {
+                        coordinates
+                          .latitude
+                          .toFixed(5)
+                      }
+                      ,{' '}
+                      {
+                        coordinates
+                          .longitude
+                          .toFixed(5)
+                      }
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                {weather && (
+                  <div className="mt-3 border-t pt-3">
+
+                    <div className="flex items-center justify-between gap-3">
+
+                      <div>
+
+                        <p className="text-lg font-semibold">
+                          {
+                            weather
+                              .temperature !=
+                            null
+                              ? `${Math.round(
+                                  weather.temperature
+                                )}°C`
+                              : '—'
+                          }
+                        </p>
+
+
+                        <p className="mt-1 text-xs capitalize">
+                          {
+                            weather
+                              .description ||
+                            weather
+                              .condition ||
+                            'Current conditions'
+                          }
+                        </p>
+
+                      </div>
+
+
+                      {weather.icon && (
+                        <img
+                          src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
+                          alt={
+                            weather.description ||
+                            'Weather'
+                          }
+                          className="h-12 w-12"
+                        />
+                      )}
+
+                    </div>
+
+                  </div>
+                )}
 
               </div>
 
@@ -1757,6 +1634,10 @@ function WeatherMap({
 
       </MapContainer>
 
+
+      {/* =====================
+          WEATHER LAYERS
+      ====================== */}
 
       <WeatherLayerControl
         activeLayer={
@@ -1770,6 +1651,10 @@ function WeatherMap({
         }
       />
 
+
+      {/* =====================
+          SELECTED READING
+      ====================== */}
 
       <SelectedReadingCard
         activeLayer={
@@ -1790,12 +1675,20 @@ function WeatherMap({
       />
 
 
+      {/* =====================
+          WEATHER LEGEND
+      ====================== */}
+
       <WeatherLegend
         activeLayer={
           activeLayer
         }
       />
 
+
+      {/* =====================
+          WEATHER TILE ERROR
+      ====================== */}
 
       {layerError &&
         activeLayer && (
@@ -1825,17 +1718,43 @@ function WeatherMap({
               <button
                 type="button"
                 onClick={() =>
-                  setLayerError(
-                    ''
-                  )
+                  setLayerError('')
                 }
                 className="secondary-text ml-auto shrink-0 rounded-lg p-1"
-                aria-label="Dismiss"
+                aria-label="Dismiss weather layer error"
               >
                 <X
                   size={12}
                 />
               </button>
+
+            </div>
+
+          </div>
+        )}
+
+
+      {/* =====================
+          NEARBY COUNT
+      ====================== */}
+
+      {nearbyPlaces.length >
+        0 &&
+        !layerError && (
+          <div className="pointer-events-none absolute bottom-4 right-4 z-[650]">
+
+            <div className="meta-badge flex items-center gap-2 rounded-full border px-3 py-2 shadow-lg">
+
+              <MapPin
+                size={12}
+                className="text-sky-500"
+              />
+
+              <span className="secondary-text text-[9px] font-semibold">
+                {
+                  nearbyPlaces.length
+                } nearby places
+              </span>
 
             </div>
 

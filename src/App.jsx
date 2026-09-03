@@ -20,8 +20,23 @@ import {
   X,
 } from 'lucide-react';
 
-import ForecastPanel from './components/ForecastPanel.jsx';
-import WeatherMap from './components/WeatherMap.jsx';
+import CompareLocations
+  from './components/CompareLocations.jsx';
+
+import ForecastPanel
+  from './components/ForecastPanel.jsx';
+
+import NearbyPlacesPanel
+  from './components/NearbyPlacesPanel.jsx';
+
+import RouteWeatherPanel
+  from './components/RouteWeatherPanel.jsx';
+
+import WeatherAlertsPanel
+  from './components/WeatherAlertsPanel.jsx';
+
+import WeatherMap
+  from './components/WeatherMap.jsx';
 
 
 function App() {
@@ -49,97 +64,137 @@ function App() {
   const [
     apiStatus,
     setApiStatus,
-  ] = useState('checking');
+  ] = useState(
+    'checking'
+  );
 
 
   const [
     selectedLocation,
     setSelectedLocation,
-  ] = useState(null);
+  ] = useState(
+    null
+  );
 
 
   const [
     place,
     setPlace,
-  ] = useState(null);
+  ] = useState(
+    null
+  );
 
 
   const [
     weather,
     setWeather,
-  ] = useState(null);
+  ] = useState(
+    null
+  );
 
 
   const [
     hourly,
     setHourly,
-  ] = useState([]);
+  ] = useState(
+    []
+  );
 
 
   const [
     daily,
     setDaily,
-  ] = useState([]);
+  ] = useState(
+    []
+  );
+
+
+  const [
+    nearbyPlaces,
+    setNearbyPlaces,
+  ] = useState(
+    []
+  );
 
 
   const [
     weatherLoading,
     setWeatherLoading,
-  ] = useState(false);
+  ] = useState(
+    false
+  );
 
 
   const [
     weatherError,
     setWeatherError,
-  ] = useState('');
+  ] = useState(
+    ''
+  );
 
 
   const [
     forecastAvailable,
     setForecastAvailable,
-  ] = useState(true);
+  ] = useState(
+    true
+  );
 
 
   const [
     forecastError,
     setForecastError,
-  ] = useState('');
+  ] = useState(
+    ''
+  );
 
 
   const [
     searchQuery,
     setSearchQuery,
-  ] = useState('');
+  ] = useState(
+    ''
+  );
 
 
   const [
     searchResults,
     setSearchResults,
-  ] = useState([]);
+  ] = useState(
+    []
+  );
 
 
   const [
     searchLoading,
     setSearchLoading,
-  ] = useState(false);
+  ] = useState(
+    false
+  );
 
 
   const [
     searchError,
     setSearchError,
-  ] = useState('');
+  ] = useState(
+    ''
+  );
 
 
   const [
     geolocationLoading,
     setGeolocationLoading,
-  ] = useState(false);
+  ] = useState(
+    false
+  );
 
 
   const [
     geolocationError,
     setGeolocationError,
-  ] = useState('');
+  ] = useState(
+    ''
+  );
 
 
   useEffect(() => {
@@ -157,6 +212,7 @@ function App() {
         ? 'dark'
         : 'light'
     );
+
   }, [
     darkMode,
   ]);
@@ -197,6 +253,7 @@ function App() {
       return;
     }
 
+
     const normalizedLocation = {
       latitude:
         Number(
@@ -213,6 +270,20 @@ function App() {
     setSelectedLocation(
       normalizedLocation
     );
+
+
+    /*
+     * Clear nearby markers immediately
+     * when changing location.
+     *
+     * NearbyPlacesPanel will load new
+     * places and send them back through
+     * onPlacesChange.
+     */
+    setNearbyPlaces(
+      []
+    );
+
 
     setWeatherLoading(
       true
@@ -287,16 +358,20 @@ function App() {
         null;
 
 
-      if (preferredPlace) {
+      if (
+        preferredPlace
+      ) {
         setPlace({
           ...apiPlace,
           ...preferredPlace,
 
           latitude:
-            normalizedLocation.latitude,
+            normalizedLocation
+              .latitude,
 
           longitude:
-            normalizedLocation.longitude,
+            normalizedLocation
+              .longitude,
         });
 
       } else {
@@ -326,7 +401,9 @@ function App() {
         );
       }
 
-    } catch (error) {
+    } catch (
+      error
+    ) {
       setWeather(
         null
       );
@@ -442,7 +519,9 @@ function App() {
         );
       }
 
-    } catch (error) {
+    } catch (
+      error
+    ) {
       setSearchResults(
         []
       );
@@ -517,75 +596,81 @@ function App() {
     );
 
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const location = {
-          latitude:
-            position.coords.latitude,
+    navigator
+      .geolocation
+      .getCurrentPosition(
+        (position) => {
+          const location = {
+            latitude:
+              position
+                .coords
+                .latitude,
 
-          longitude:
-            position.coords.longitude,
-        };
-
-
-        setGeolocationLoading(
-          false
-        );
-
-
-        loadWeather(
-          location
-        );
-      },
+            longitude:
+              position
+                .coords
+                .longitude,
+          };
 
 
-      (error) => {
-        setGeolocationLoading(
-          false
-        );
-
-
-        if (
-          error.code ===
-          error.PERMISSION_DENIED
-        ) {
-          setGeolocationError(
-            'Location permission was denied.'
+          setGeolocationLoading(
+            false
           );
 
-          return;
-        }
+
+          loadWeather(
+            location
+          );
+        },
 
 
-        if (
-          error.code ===
-          error.TIMEOUT
-        ) {
-          setGeolocationError(
-            'Location request timed out.'
+        (error) => {
+          setGeolocationLoading(
+            false
           );
 
-          return;
+
+          if (
+            error.code ===
+            error.PERMISSION_DENIED
+          ) {
+            setGeolocationError(
+              'Location permission was denied.'
+            );
+
+            return;
+          }
+
+
+          if (
+            error.code ===
+            error.TIMEOUT
+          ) {
+            setGeolocationError(
+              'Location request timed out.'
+            );
+
+            return;
+          }
+
+
+          setGeolocationError(
+            'Unable to determine your location.'
+          );
+        },
+
+
+        {
+          enableHighAccuracy:
+            true,
+
+          timeout:
+            12000,
+
+          maximumAge:
+            30000,
         }
-
-
-        setGeolocationError(
-          'Unable to determine your location.'
-        );
-      },
-
-
-      {
-        enableHighAccuracy:
-          true,
-
-        timeout:
-          12000,
-
-        maximumAge:
-          30000,
-      }
-    );
+      );
   }
 
 
@@ -598,9 +683,11 @@ function App() {
       return '—';
     }
 
+
     return (
       `${(
-        visibility / 1000
+        visibility /
+        1000
       ).toFixed(1)} km`
     );
   }
@@ -614,6 +701,7 @@ function App() {
     ) {
       return '—';
     }
+
 
     return (
       `${Number(
@@ -644,6 +732,10 @@ function App() {
   return (
     <div className="app-shell min-h-screen">
 
+      {/* =========================
+          NAVIGATION
+      ========================== */}
+
       <header className="app-navbar sticky top-0 z-[5000] border-b">
 
         <div className="mx-auto flex min-h-[74px] max-w-[1500px] items-center gap-4 px-4 sm:px-6 lg:px-8">
@@ -651,9 +743,11 @@ function App() {
           <div className="flex shrink-0 items-center gap-3">
 
             <div className="brand-mark flex h-10 w-10 items-center justify-center rounded-2xl text-white shadow-lg">
+
               <Cloud
                 size={19}
               />
+
             </div>
 
 
@@ -671,6 +765,8 @@ function App() {
 
           </div>
 
+
+          {/* DESKTOP SEARCH */}
 
           <div className="relative z-[6000] mx-auto hidden w-full max-w-[570px] md:block">
 
@@ -726,9 +822,11 @@ function App() {
                   className="secondary-text rounded-xl p-2"
                   aria-label="Clear search"
                 >
+
                   <X
                     size={15}
                   />
+
                 </button>
               )}
 
@@ -737,6 +835,7 @@ function App() {
                 type="submit"
                 className="search-submit flex h-9 items-center justify-center rounded-xl px-4 text-xs font-semibold"
               >
+
                 {searchLoading
                   ? (
                     <LoaderCircle
@@ -746,13 +845,15 @@ function App() {
                   )
                   : 'Search'
                 }
+
               </button>
 
             </form>
 
 
             {(
-              searchResults.length > 0
+              searchResults.length >
+              0
               ||
               searchError
             ) && (
@@ -827,6 +928,7 @@ function App() {
               }
               className="nav-action flex h-10 items-center gap-2 rounded-xl border px-3 text-xs font-semibold"
             >
+
               {geolocationLoading
                 ? (
                   <LoaderCircle
@@ -840,6 +942,7 @@ function App() {
                   />
                 )
               }
+
 
               <span className="hidden lg:inline">
                 My location
@@ -859,6 +962,7 @@ function App() {
               className="nav-action flex h-10 w-10 items-center justify-center rounded-xl border"
               aria-label="Toggle theme"
             >
+
               {darkMode
                 ? (
                   <Sun
@@ -871,6 +975,7 @@ function App() {
                   />
                 )
               }
+
             </button>
 
 
@@ -878,9 +983,11 @@ function App() {
 
               <span
                 className={`h-2 w-2 rounded-full ${
-                  apiStatus === 'online'
+                  apiStatus ===
+                  'online'
                     ? 'bg-emerald-500'
-                    : apiStatus === 'offline'
+                    : apiStatus ===
+                        'offline'
                       ? 'bg-red-500'
                       : 'bg-amber-500'
                 }`}
@@ -888,12 +995,16 @@ function App() {
 
 
               <span className="secondary-text text-[10px] font-medium">
-                {apiStatus === 'online'
+
+                {apiStatus ===
+                'online'
                   ? 'Live'
-                  : apiStatus === 'offline'
+                  : apiStatus ===
+                      'offline'
                     ? 'Offline'
                     : 'Checking'
                 }
+
               </span>
 
             </div>
@@ -906,6 +1017,10 @@ function App() {
 
 
       <main className="mx-auto max-w-[1500px] px-4 py-7 sm:px-6 lg:px-8">
+
+        {/* =========================
+            PAGE INTRO
+        ========================== */}
 
         <section className="mb-6">
 
@@ -933,7 +1048,7 @@ function App() {
 
 
               <p className="secondary-text mt-2 max-w-2xl text-sm">
-                Search for a place or select anywhere on the map to explore local conditions.
+                Search for a place or select anywhere on the map to explore weather, nearby services and geographic intelligence.
               </p>
 
             </div>
@@ -966,6 +1081,8 @@ function App() {
 
           </div>
 
+
+          {/* MOBILE SEARCH */}
 
           <div className="relative z-[4500] mt-5 md:hidden">
 
@@ -1006,6 +1123,7 @@ function App() {
                 type="submit"
                 className="search-submit rounded-xl px-4 py-2.5 text-xs font-semibold"
               >
+
                 {searchLoading
                   ? (
                     <LoaderCircle
@@ -1015,13 +1133,15 @@ function App() {
                   )
                   : 'Search'
                 }
+
               </button>
 
             </form>
 
 
             {(
-              searchResults.length > 0
+              searchResults.length >
+              0
               ||
               searchError
             ) && (
@@ -1098,16 +1218,24 @@ function App() {
             />
 
             <p className="text-xs">
-              {geolocationError}
+              {
+                geolocationError
+              }
             </p>
 
           </div>
         )}
 
 
+        {/* =========================
+            CURRENT WEATHER + MAP
+        ========================== */}
+
         <section className="grid gap-6 xl:grid-cols-[390px_minmax(0,1fr)]">
 
           <div className="space-y-5">
+
+            {/* LOCATION CARD */}
 
             <div className="premium-card sidebar-card rounded-3xl border p-5">
 
@@ -1132,42 +1260,49 @@ function App() {
 
 
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-500">
+
                   <MapPin
                     size={17}
                   />
+
                 </div>
 
               </div>
 
 
-              {hasLocation ? (
-                <div className="mt-4">
+              {hasLocation
+                ? (
+                  <div className="mt-4">
 
-                  <span className="place-badge inline-flex rounded-full border px-2.5 py-1 text-[10px] font-medium capitalize">
-                    {
-                      place?.type ||
-                      'location'
-                    }
-                  </span>
+                    <span className="place-badge inline-flex rounded-full border px-2.5 py-1 text-[10px] font-medium capitalize">
+                      {
+                        place?.type ||
+                        'location'
+                      }
+                    </span>
 
 
-                  <p className="secondary-text mt-3 text-[11px] leading-5">
-                    {
-                      place?.display_name ||
-                      `${selectedLocation.latitude.toFixed(5)}, ${selectedLocation.longitude.toFixed(5)}`
-                    }
+                    <p className="secondary-text mt-3 text-[11px] leading-5">
+                      {
+                        place
+                          ?.display_name ||
+                        `${selectedLocation.latitude.toFixed(5)}, ${selectedLocation.longitude.toFixed(5)}`
+                      }
+                    </p>
+
+                  </div>
+                )
+                : (
+                  <p className="secondary-text mt-3 text-xs leading-5">
+                    Search above, use your current location, or click anywhere on the map.
                   </p>
-
-                </div>
-
-              ) : (
-                <p className="secondary-text mt-3 text-xs leading-5">
-                  Search above, use your current location, or click anywhere on the map.
-                </p>
-              )}
+                )
+              }
 
             </div>
 
+
+            {/* CURRENT WEATHER */}
 
             <div className="premium-card sidebar-card rounded-3xl border p-5">
 
@@ -1218,6 +1353,7 @@ function App() {
                       className="animate-spin text-sky-500"
                     />
 
+
                     <div>
 
                       <p className="primary-text text-xs font-semibold">
@@ -1231,7 +1367,8 @@ function App() {
                     </div>
 
                   </div>
-                )}
+                )
+              }
 
 
               {hasLocation &&
@@ -1244,11 +1381,14 @@ function App() {
                     </p>
 
                     <p className="mt-1 text-[10px] leading-5">
-                      {weatherError}
+                      {
+                        weatherError
+                      }
                     </p>
 
                   </div>
-                )}
+                )
+              }
 
 
               {hasLocation &&
@@ -1274,11 +1414,18 @@ function App() {
 
 
                             <div className="primary-text mt-2 text-5xl font-semibold tracking-[-0.05em]">
+
                               {
-                                weather.temperature != null
-                                  ? `${Math.round(weather.temperature)}°`
+                                weather
+                                  .temperature !=
+                                null
+                                  ? `${Math.round(
+                                      weather
+                                        .temperature
+                                    )}°`
                                   : '—'
                               }
+
                             </div>
 
                           </div>
@@ -1288,7 +1435,8 @@ function App() {
                             <img
                               src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
                               alt={
-                                weather.description ||
+                                weather
+                                  .description ||
                                 'Weather'
                               }
                               className="h-16 w-16"
@@ -1300,20 +1448,30 @@ function App() {
 
                         <p className="primary-text mt-3 text-sm font-semibold capitalize">
                           {
-                            weather.description ||
-                            weather.condition ||
+                            weather
+                              .description ||
+                            weather
+                              .condition ||
                             'Current conditions'
                           }
                         </p>
 
 
                         <p className="secondary-text mt-1 text-[11px]">
+
                           Feels like{' '}
+
                           {
-                            weather.feels_like != null
-                              ? `${Math.round(weather.feels_like)}°C`
+                            weather
+                              .feels_like !=
+                            null
+                              ? `${Math.round(
+                                  weather
+                                    .feels_like
+                                )}°C`
                               : '—'
                           }
+
                         </p>
 
                       </div>
@@ -1335,11 +1493,15 @@ function App() {
                         </p>
 
                         <p className="primary-text mt-1 text-sm font-semibold">
+
                           {
-                            weather.humidity != null
+                            weather
+                              .humidity !=
+                            null
                               ? `${weather.humidity}%`
                               : '—'
                           }
+
                         </p>
 
                       </div>
@@ -1359,7 +1521,8 @@ function App() {
                         <p className="primary-text mt-1 text-sm font-semibold">
                           {
                             formatWind(
-                              weather.wind_speed
+                              weather
+                                .wind_speed
                             )
                           }
                         </p>
@@ -1379,11 +1542,15 @@ function App() {
                         </p>
 
                         <p className="primary-text mt-1 text-sm font-semibold">
+
                           {
-                            weather.pressure != null
+                            weather
+                              .pressure !=
+                            null
                               ? `${weather.pressure} hPa`
                               : '—'
                           }
+
                         </p>
 
                       </div>
@@ -1403,7 +1570,8 @@ function App() {
                         <p className="primary-text mt-1 text-sm font-semibold">
                           {
                             formatVisibility(
-                              weather.visibility
+                              weather
+                                .visibility
                             )
                           }
                         </p>
@@ -1413,12 +1581,15 @@ function App() {
                     </div>
 
                   </>
-                )}
+                )
+              }
 
             </div>
 
           </div>
 
+
+          {/* INTERACTIVE MAP */}
 
           <div className="premium-card map-card overflow-hidden rounded-3xl border">
 
@@ -1431,7 +1602,7 @@ function App() {
                 </p>
 
                 <p className="secondary-text mt-1 text-[10px]">
-                  Click anywhere to inspect local conditions
+                  Click anywhere to inspect conditions and nearby places
                 </p>
 
               </div>
@@ -1471,6 +1642,9 @@ function App() {
                 weatherLoading={
                   weatherLoading
                 }
+                nearbyPlaces={
+                  nearbyPlaces
+                }
               />
 
 
@@ -1490,6 +1664,10 @@ function App() {
 
         </section>
 
+
+        {/* =========================
+            FORECAST
+        ========================== */}
 
         <section className="mt-6">
 
@@ -1515,6 +1693,83 @@ function App() {
           />
 
         </section>
+
+
+        {/* =========================
+            NEARBY PLACES
+        ========================== */}
+
+        <section className="mt-6">
+
+          <NearbyPlacesPanel
+            selectedLocation={
+              selectedLocation
+            }
+            onPlacesChange={
+              setNearbyPlaces
+            }
+          />
+
+        </section>
+
+
+        {/* =========================
+            ALERTS + COMPARISON
+        ========================== */}
+
+        <section className="mt-6 grid gap-6 xl:grid-cols-2">
+
+          <WeatherAlertsPanel
+            selectedLocation={
+              selectedLocation
+            }
+          />
+
+
+          <CompareLocations />
+
+        </section>
+
+
+        {/* =========================
+            ROUTE WEATHER
+        ========================== */}
+
+        <section className="mt-6">
+
+          <RouteWeatherPanel />
+
+        </section>
+
+
+        {/* =========================
+            FOOTER
+        ========================== */}
+
+        <footer className="mt-10 border-t py-7">
+
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+
+            <div>
+
+              <p className="primary-text text-xs font-semibold">
+                AngaMaps
+              </p>
+
+              <p className="secondary-text mt-1 text-[10px]">
+                Weather and geospatial intelligence.
+              </p>
+
+            </div>
+
+
+            <p className="secondary-text text-[9px]">
+              Map data © OpenStreetMap contributors
+            </p>
+
+          </div>
+
+        </footer>
 
       </main>
 
