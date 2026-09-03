@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+
+import L from 'leaflet';
+
 import {
   MapContainer,
   Marker,
@@ -9,6 +12,25 @@ import {
 } from 'react-leaflet';
 
 import 'leaflet/dist/leaflet.css';
+
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+
+const defaultMarkerIcon = L.icon({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+
+  popupAnchor: [1, -34],
+
+  shadowSize: [41, 41],
+});
+
 
 function MapController({ selectedLocation }) {
   const map = useMap();
@@ -32,6 +54,7 @@ function MapController({ selectedLocation }) {
 
   return null;
 }
+
 
 function LocationMarker({
   selectedLocation,
@@ -74,7 +97,10 @@ function LocationMarker({
   }
 
   return (
-    <Marker position={position}>
+    <Marker
+      position={position}
+      icon={defaultMarkerIcon}
+    >
       <Popup>
         Latitude: {position[0].toFixed(5)}
         <br />
@@ -83,6 +109,7 @@ function LocationMarker({
     </Marker>
   );
 }
+
 
 function WeatherMap({
   selectedLocation,
