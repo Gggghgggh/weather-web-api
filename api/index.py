@@ -6,13 +6,19 @@ from api.services.geocoding_service import (
     reverse_geocode,
     search_locations,
 )
-from api.services.weather_service import get_current_weather
+
+from api.services.weather_service import (
+    get_current_weather,
+    get_forecast,
+)
 
 
 app = FastAPI(
     title="AngaMaps API",
-    description="Weather and geospatial intelligence API",
-    version="1.0.0",
+    description=(
+        "Weather and geospatial intelligence API"
+    ),
+    version="1.2.0",
 )
 
 
@@ -21,7 +27,7 @@ async def root():
     return {
         "name": "AngaMaps API",
         "status": "online",
-        "version": "1.0.0",
+        "version": "1.2.0",
     }
 
 
@@ -43,7 +49,7 @@ async def location_search(
 ):
     results = await search_locations(
         query=q,
-        limit=7,
+        limit=8,
     )
 
     return {
@@ -53,24 +59,35 @@ async def location_search(
     }
 
 
-@app.get("/api/weather/current")
-async def current_weather(
+@app.get("/api/weather")
+async def weather(
     lat: float = Query(
         ...,
         ge=-90,
         le=90,
     ),
+
     lon: float = Query(
         ...,
         ge=-180,
         le=180,
     ),
 ):
-    weather, location = await asyncio.gather(
+    (
+        current_weather,
+        forecast,
+        location,
+    ) = await asyncio.gather(
         get_current_weather(
             latitude=lat,
             longitude=lon,
         ),
+
+        get_forecast(
+            latitude=lat,
+            longitude=lon,
+        ),
+
         reverse_geocode(
             latitude=lat,
             longitude=lon,
@@ -79,5 +96,70 @@ async def current_weather(
 
     return {
         "location": location,
-        "weather": weather,
+
+        "coordinates": {
+            "latitude": lat,
+            "longitude": lon,
+        },
+
+        "timezone_offset": (
+            forecast.get(
+                "timezone_offset",
+                current_weather.get(
+                    "timezone_offset",
+                    0,
+                ),
+            )
+        ),
+
+        "current": current_weather,
+
+        "hourly": forecast.get(
+            "hourly",
+            [],
+        ),
+
+        "daily": forecast.get(
+            "daily",
+            [],
+        ),
+    }
+
+
+#
+# Keep your old endpoint working for
+# backwards compatibility.
+#
+
+@app.get("/api/weather/current")
+async def current_weather(
+    lat: float = Query(
+        ...,
+        ge=-90,
+        le=90,
+    ),
+
+    lon: float = Query(
+        ...,
+        ge=-180,
+        le=180,
+    ),
+):
+    weather_data, location = (
+        await asyncio.gather(
+            get_current_weather(
+                latitude=lat,
+                longitude=lon,
+            ),
+
+            reverse_geocode(
+                latitude=lat,
+                longitude=lon,
+            ),
+        )
+    )
+
+    return {
+        "location": location,
+        "weather": weather_data,
     }
