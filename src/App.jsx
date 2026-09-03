@@ -503,7 +503,7 @@ function App() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <nav className="relative z-[1000] border-b border-white/10 bg-slate-950/95">
+      <nav className="relative z-[5000] border-b border-white/10 bg-slate-950/95">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-4 lg:flex-row lg:items-center">
           <div className="shrink-0">
             <h1 className="text-xl font-bold tracking-tight">
@@ -514,8 +514,7 @@ function App() {
               Weather Intelligence
             </p>
           </div>
-
-          <div className="relative w-full lg:mx-auto lg:max-w-xl">
+          <div className="relative z-[6000] w-full lg:mx-auto lg:max-w-xl">
             <form
               onSubmit={handleSearch}
               className="flex items-center rounded-2xl border border-white/10 bg-slate-900 p-1"
@@ -572,7 +571,7 @@ function App() {
                 searchResults.length ===
                   0
               )) && (
-              <div className="absolute left-0 right-0 top-[calc(100%+8px)] overflow-hidden rounded-2xl border border-white/10 bg-slate-900 shadow-2xl">
+              <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-[7000] max-h-[420px] overflow-y-auto overflow-x-hidden rounded-2xl border border-white/10 bg-slate-900 shadow-2xl">
                 {searchError && (
                   <div className="p-4 text-sm text-red-300">
                     {searchError}
@@ -889,9 +888,8 @@ function App() {
                 )}
             </div>
           )}
-        </aside>
-
-        <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-900 shadow-2xl">
+        </aside>  
+        <div className="relative z-0 overflow-hidden rounded-3xl border border-white/10 bg-slate-900 shadow-2xl">
           <div className="h-[calc(100vh-150px)] min-h-[600px]">
             <WeatherMap
               selectedLocation={

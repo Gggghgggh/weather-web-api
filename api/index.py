@@ -43,7 +43,7 @@ async def location_search(
 ):
     results = await search_locations(
         query=q,
-        limit=5,
+        limit=7,
     )
 
     return {
