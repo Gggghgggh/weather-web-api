@@ -1,25 +1,77 @@
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from 'react-leaflet';
+
 import 'leaflet/dist/leaflet.css';
 
-function LocationMarker({ onLocationSelect }) {
+function MapController({ selectedLocation }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!selectedLocation) {
+      return;
+    }
+
+    map.flyTo(
+      [
+        selectedLocation.latitude,
+        selectedLocation.longitude,
+      ],
+      15,
+      {
+        duration: 1.3,
+      }
+    );
+  }, [selectedLocation, map]);
+
+  return null;
+}
+
+function LocationMarker({
+  selectedLocation,
+  onLocationSelect,
+}) {
   const [position, setPosition] = useState(null);
+
+  useEffect(() => {
+    if (!selectedLocation) {
+      return;
+    }
+
+    setPosition([
+      selectedLocation.latitude,
+      selectedLocation.longitude,
+    ]);
+  }, [selectedLocation]);
 
   useMapEvents({
     click(event) {
-      const { lat, lng } = event.latlng;
+      const latitude = event.latlng.lat;
+      const longitude = event.latlng.lng;
 
-      const selected = {
-        latitude: lat,
-        longitude: lng,
-      };
+      setPosition([
+        latitude,
+        longitude,
+      ]);
 
-      setPosition([lat, lng]);
-      onLocationSelect(selected);
+      if (onLocationSelect) {
+        onLocationSelect({
+          latitude,
+          longitude,
+        });
+      }
     },
   });
 
-  if (!position) return null;
+  if (!position) {
+    return null;
+  }
 
   return (
     <Marker position={position}>
@@ -32,20 +84,35 @@ function LocationMarker({ onLocationSelect }) {
   );
 }
 
-export default function WeatherMap({ onLocationSelect }) {
+function WeatherMap({
+  selectedLocation,
+  onLocationSelect,
+}) {
   return (
     <MapContainer
       center={[-1.286389, 36.817223]}
       zoom={7}
-      className="h-full w-full"
-      scrollWheelZoom
+      scrollWheelZoom={true}
+      style={{
+        width: '100%',
+        height: '100%',
+      }}
     >
       <TileLayer
-        attribution='&copy; OpenStreetMap contributors'
+        attribution="&copy; OpenStreetMap contributors"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      <LocationMarker onLocationSelect={onLocationSelect} />
+      <MapController
+        selectedLocation={selectedLocation}
+      />
+
+      <LocationMarker
+        selectedLocation={selectedLocation}
+        onLocationSelect={onLocationSelect}
+      />
     </MapContainer>
   );
 }
+
+export default WeatherMap;
