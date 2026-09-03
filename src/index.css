@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* =========================================================
+   Base
+   ========================================================= */
+
 html,
 body,
 #root {
@@ -10,14 +14,415 @@ body {
   margin: 0;
 }
 
+
+/* =========================================================
+   Light theme
+   ========================================================= */
+
+:root {
+  color-scheme: light;
+
+  --app-bg: #f8fafc;
+  --navbar-bg: rgba(255, 255, 255, 0.96);
+
+  --surface: #ffffff;
+  --surface-secondary: #f8fafc;
+  --surface-hover: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+
+  --border: #e2e8f0;
+  --border-subtle: #f1f5f9;
+
+  --button-bg: #0f172a;
+  --button-text: #ffffff;
+  --button-hover: #1e293b;
+
+  --icon-bg: #ffffff;
+  --icon-hover: #f1f5f9;
+
+  --map-bg: #e2e8f0;
+
+  --shadow:
+    0 20px 50px rgba(15, 23, 42, 0.08);
+}
+
+
+/* =========================================================
+   Dark theme
+   ========================================================= */
+
+html.dark {
+  color-scheme: dark;
+
+  --app-bg: #020617;
+  --navbar-bg: rgba(2, 6, 23, 0.96);
+
+  --surface: #0f172a;
+  --surface-secondary: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.07);
+
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+
+  --border: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+
+  --button-bg: #ffffff;
+  --button-text: #020617;
+  --button-hover: #e2e8f0;
+
+  --icon-bg: rgba(255, 255, 255, 0.05);
+  --icon-hover: rgba(255, 255, 255, 0.1);
+
+  --map-bg: #0f172a;
+
+  --shadow:
+    0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+
+/* =========================================================
+   Application
+   ========================================================= */
+
+.app-shell {
+  background: var(--app-bg);
+  color: var(--text-primary);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.app-navbar {
+  background: var(--navbar-bg);
+  border-color: var(--border);
+  backdrop-filter: blur(16px);
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.primary-text {
+  color: var(--text-primary);
+}
+
+.secondary-text {
+  color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   Theme toggle
+   ========================================================= */
+
+.theme-toggle {
+  background: var(--icon-bg);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+.theme-toggle:hover {
+  background: var(--icon-hover);
+  color: var(--text-primary);
+}
+
+
+/* =========================================================
+   Search
+   ========================================================= */
+
+.search-box {
+  background: var(--surface);
+  border-color: var(--border);
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.search-box:focus-within {
+  border-color: #94a3b8;
+}
+
+.search-input {
+  color: var(--text-primary);
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.search-submit {
+  background: var(--button-bg);
+  color: var(--button-text);
+}
+
+.search-submit:hover {
+  background: var(--button-hover);
+}
+
+.icon-button {
+  color: var(--text-secondary);
+}
+
+.icon-button:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+
+/* =========================================================
+   Search dropdown
+   ========================================================= */
+
+.search-dropdown {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+.search-result {
+  border-color: var(--border-subtle);
+}
+
+.search-result:hover {
+  background: var(--surface-hover);
+}
+
+.search-attribution {
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+.place-badge {
+  background: var(--surface-secondary);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   Cards
+   ========================================================= */
+
+.sidebar-card {
+  background: var(--surface-secondary);
+  border-color: var(--border);
+}
+
+.content-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.weather-stat {
+  background: var(--surface-secondary);
+  border: 1px solid var(--border);
+}
+
+.empty-card {
+  border-color: var(--border);
+}
+
+.section-divider {
+  border-color: var(--border);
+}
+
+.loading-spinner {
+  border-color: var(--border);
+  border-top-color: var(--text-primary);
+}
+
+
+/* =========================================================
+   Map
+   ========================================================= */
+
+.map-wrapper {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
 .leaflet-container {
   width: 100%;
   height: 100%;
-  background: #0f172a;
+  background: var(--map-bg);
   z-index: 0;
 }
 
 .leaflet-control-container {
   position: relative;
   z-index: 400;
+}
+
+
+/* =========================================================
+   Leaflet controls
+   ========================================================= */
+
+.leaflet-control-zoom {
+  border:
+    1px solid var(--border) !important;
+
+  border-radius:
+    12px !important;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.leaflet-control-zoom a {
+  width: 38px !important;
+  height: 38px !important;
+  line-height: 38px !important;
+
+  border: 0 !important;
+  border-bottom:
+    1px solid var(--border) !important;
+
+  background:
+    var(--surface) !important;
+
+  color:
+    var(--text-primary) !important;
+
+  font-size: 20px !important;
+
+  transition:
+    background-color 0.2s ease;
+}
+
+.leaflet-control-zoom a:last-child {
+  border-bottom: 0 !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background:
+    var(--surface-hover) !important;
+}
+
+
+/* =========================================================
+   Leaflet popup
+   ========================================================= */
+
+.leaflet-popup-content-wrapper {
+  background:
+    var(--surface);
+
+  color:
+    var(--text-primary);
+
+  border:
+    1px solid var(--border);
+
+  border-radius:
+    14px;
+
+  box-shadow:
+    var(--shadow);
+}
+
+.leaflet-popup-content {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+}
+
+.leaflet-popup-tip {
+  background:
+    var(--surface);
+}
+
+.leaflet-popup-close-button {
+  color:
+    var(--text-secondary) !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color:
+    var(--text-primary) !important;
+}
+
+
+/* =========================================================
+   Leaflet attribution
+   ========================================================= */
+
+.leaflet-control-attribution {
+  background:
+    color-mix(
+      in srgb,
+      var(--surface) 90%,
+      transparent
+    ) !important;
+
+  color:
+    var(--text-secondary) !important;
+}
+
+.leaflet-control-attribution a {
+  color:
+    var(--text-secondary) !important;
+}
+
+
+/* =========================================================
+   Scrollbars
+   ========================================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 999px;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+
+/* =========================================================
+   Selection
+   ========================================================= */
+
+::selection {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+html.dark ::selection {
+  background: #334155;
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 640px) {
+  .leaflet-control-zoom a {
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+  }
 }

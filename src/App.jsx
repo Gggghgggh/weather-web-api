@@ -1,35 +1,23 @@
 import { useEffect, useState } from 'react';
+import { Moon, Search, Sun, X } from 'lucide-react';
+
 import WeatherMap from './components/WeatherMap';
 
-function SearchIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="h-5 w-5"
-      aria-hidden="true"
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
-    </svg>
-  );
-}
 
 function WeatherStat({ label, value }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-      <p className="text-xs text-slate-500">
+    <div className="weather-stat rounded-xl p-3">
+      <p className="secondary-text text-xs">
         {label}
       </p>
 
-      <p className="mt-1 text-sm font-semibold text-white">
+      <p className="primary-text mt-1 text-sm font-semibold">
         {value}
       </p>
     </div>
   );
 }
+
 
 function buildLocationHierarchy(place) {
   if (!place) {
@@ -65,6 +53,7 @@ function buildLocationHierarchy(place) {
   return locations.join(', ');
 }
 
+
 function buildSearchResultSubtitle(result) {
   const locations = [
     result.suburb,
@@ -95,6 +84,7 @@ function buildSearchResultSubtitle(result) {
   return result.display_name || '';
 }
 
+
 function getPlaceType(result) {
   if (!result) {
     return '';
@@ -115,6 +105,7 @@ function getPlaceType(result) {
     );
 }
 
+
 function formatTemperature(value) {
   if (value === null || value === undefined) {
     return '--';
@@ -122,6 +113,7 @@ function formatTemperature(value) {
 
   return Math.round(value) + '°C';
 }
+
 
 function formatHumidity(value) {
   if (value === null || value === undefined) {
@@ -131,6 +123,7 @@ function formatHumidity(value) {
   return value + '%';
 }
 
+
 function formatWind(value) {
   if (value === null || value === undefined) {
     return '--';
@@ -138,6 +131,7 @@ function formatWind(value) {
 
   return value + ' m/s';
 }
+
 
 function formatPressure(value) {
   if (value === null || value === undefined) {
@@ -147,6 +141,7 @@ function formatPressure(value) {
   return value + ' hPa';
 }
 
+
 function formatCloudiness(value) {
   if (value === null || value === undefined) {
     return '--';
@@ -155,6 +150,7 @@ function formatCloudiness(value) {
   return value + '%';
 }
 
+
 function formatVisibility(value) {
   if (value === null || value === undefined) {
     return '--';
@@ -162,6 +158,7 @@ function formatVisibility(value) {
 
   return (value / 1000).toFixed(1) + ' km';
 }
+
 
 function getWeatherIconUrl(icon) {
   if (!icon) {
@@ -175,7 +172,25 @@ function getWeatherIconUrl(icon) {
   );
 }
 
+
 function App() {
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedTheme =
+      localStorage.getItem('angamaps-theme');
+
+    if (savedTheme === 'dark') {
+      return true;
+    }
+
+    if (savedTheme === 'light') {
+      return false;
+    }
+
+    return window.matchMedia(
+      '(prefers-color-scheme: dark)'
+    ).matches;
+  });
+
   const [apiStatus, setApiStatus] =
     useState('Checking...');
 
@@ -223,6 +238,19 @@ function App() {
     setHasSearched,
   ] = useState(false);
 
+
+  useEffect(() => {
+    const root =
+      document.documentElement;
+
+    if (darkMode) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+
   useEffect(() => {
     async function checkApi() {
       try {
@@ -262,6 +290,24 @@ function App() {
     checkApi();
   }, []);
 
+
+  function toggleTheme() {
+    setDarkMode((currentMode) => {
+      const nextMode =
+        !currentMode;
+
+      localStorage.setItem(
+        'angamaps-theme',
+        nextMode
+          ? 'dark'
+          : 'light'
+      );
+
+      return nextMode;
+    });
+  }
+
+
   async function loadWeather(location) {
     setWeather(null);
     setWeatherError('');
@@ -297,7 +343,7 @@ function App() {
               errorData.detail;
           }
         } catch {
-          // Keep fallback.
+          // Use fallback.
         }
 
         throw new Error(
@@ -307,11 +353,6 @@ function App() {
 
       const data =
         await response.json();
-
-      console.log(
-        'AngaMaps weather response:',
-        data
-      );
 
       if (!data.weather) {
         throw new Error(
@@ -346,6 +387,7 @@ function App() {
     }
   }
 
+
   async function handleLocationSelect(
     location
   ) {
@@ -357,6 +399,7 @@ function App() {
       location
     );
   }
+
 
   async function handleSearch(event) {
     event.preventDefault();
@@ -401,7 +444,7 @@ function App() {
               errorData.detail;
           }
         } catch {
-          // Keep fallback.
+          // Use fallback.
         }
 
         throw new Error(
@@ -439,6 +482,7 @@ function App() {
     }
   }
 
+
   async function handleSearchResultSelect(
     result
   ) {
@@ -473,6 +517,7 @@ function App() {
     );
   }
 
+
   function clearSearch() {
     setSearchQuery('');
     setSearchResults([]);
@@ -480,47 +525,54 @@ function App() {
     setHasSearched(false);
   }
 
+
   function getStatusColor() {
     if (
       apiStatus ===
       'API Connected'
     ) {
-      return 'bg-emerald-400';
+      return 'bg-emerald-500';
     }
 
     if (
       apiStatus ===
       'Checking...'
     ) {
-      return 'bg-amber-400';
+      return 'bg-amber-500';
     }
 
-    return 'bg-red-400';
+    return 'bg-red-500';
   }
+
 
   const locationHierarchy =
     buildLocationHierarchy(place);
 
+
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <nav className="relative z-[5000] border-b border-white/10 bg-slate-950/95">
+    <main className="app-shell min-h-screen">
+      <nav className="app-navbar relative z-[5000] border-b">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-4 lg:flex-row lg:items-center">
           <div className="shrink-0">
-            <h1 className="text-xl font-bold tracking-tight">
+            <h1 className="primary-text text-xl font-bold tracking-tight">
               AngaMaps
             </h1>
 
-            <p className="text-xs text-slate-500">
+            <p className="secondary-text text-xs">
               Weather Intelligence
             </p>
           </div>
+
           <div className="relative z-[6000] w-full lg:mx-auto lg:max-w-xl">
             <form
               onSubmit={handleSearch}
-              className="flex items-center rounded-2xl border border-white/10 bg-slate-900 p-1"
+              className="search-box flex items-center rounded-2xl border p-1"
             >
-              <div className="ml-3 text-slate-500">
-                <SearchIcon />
+              <div className="secondary-text ml-3">
+                <Search
+                  size={19}
+                  strokeWidth={2}
+                />
               </div>
 
               <input
@@ -536,16 +588,21 @@ function App() {
                   }
                 }}
                 placeholder="Search towns, estates, schools, hospitals..."
-                className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-600"
+                className="search-input min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm outline-none"
               />
 
               {searchQuery && (
                 <button
                   type="button"
                   onClick={clearSearch}
-                  className="rounded-xl px-3 py-2 text-sm text-slate-500 transition hover:bg-white/5 hover:text-white"
+                  aria-label="Clear search"
+                  title="Clear search"
+                  className="icon-button flex h-9 w-9 items-center justify-center rounded-xl"
                 >
-                  Clear
+                  <X
+                    size={17}
+                    strokeWidth={2}
+                  />
                 </button>
               )}
 
@@ -554,7 +611,7 @@ function App() {
                 disabled={
                   searchLoading
                 }
-                className="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
+                className="search-submit ml-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {searchLoading
                   ? 'Searching...'
@@ -571,9 +628,9 @@ function App() {
                 searchResults.length ===
                   0
               )) && (
-              <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-[7000] max-h-[420px] overflow-y-auto overflow-x-hidden rounded-2xl border border-white/10 bg-slate-900 shadow-2xl">
+              <div className="search-dropdown absolute left-0 right-0 top-[calc(100%+8px)] z-[7000] max-h-[420px] overflow-y-auto overflow-x-hidden rounded-2xl border shadow-2xl">
                 {searchError && (
-                  <div className="p-4 text-sm text-red-300">
+                  <div className="p-4 text-sm text-red-500">
                     {searchError}
                   </div>
                 )}
@@ -584,16 +641,13 @@ function App() {
                   searchResults.length ===
                     0 && (
                     <div className="p-4">
-                      <p className="text-sm font-medium text-white">
-                        No places
-                        found
+                      <p className="primary-text text-sm font-medium">
+                        No places found
                       </p>
 
-                      <p className="mt-1 text-xs text-slate-500">
-                        Try adding
-                        the town,
-                        county or
-                        country.
+                      <p className="secondary-text mt-1 text-xs">
+                        Try adding the town,
+                        county or country.
                       </p>
                     </div>
                   )}
@@ -620,24 +674,24 @@ function App() {
                           result
                         )
                       }
-                      className="block w-full border-b border-white/5 px-4 py-3 text-left transition last:border-b-0 hover:bg-white/5"
+                      className="search-result block w-full border-b px-4 py-3 text-left transition last:border-b-0"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-white">
+                          <p className="primary-text truncate text-sm font-semibold">
                             {
                               result.name
                             }
                           </p>
 
-                          <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
+                          <p className="secondary-text mt-1 line-clamp-2 text-xs leading-5">
                             {buildSearchResultSubtitle(
                               result
                             )}
                           </p>
                         </div>
 
-                        <span className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-medium text-slate-400">
+                        <span className="place-badge shrink-0 rounded-lg border px-2 py-1 text-[10px] font-medium">
                           {getPlaceType(
                             result
                           )}
@@ -649,42 +703,72 @@ function App() {
 
                 {searchResults.length >
                   0 && (
-                  <div className="border-t border-white/10 px-4 py-2 text-[10px] text-slate-600">
+                  <div className="search-attribution border-t px-4 py-2 text-[10px]">
                     Search data ©
-                    OpenStreetMap
-                    contributors
+                    OpenStreetMap contributors
                   </div>
                 )}
               </div>
             )}
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 text-sm text-slate-400">
-            <span
-              className={
-                'h-2 w-2 rounded-full ' +
-                getStatusColor()
+          <div className="flex shrink-0 items-center gap-3">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={
+                darkMode
+                  ? 'Switch to light mode'
+                  : 'Switch to dark mode'
               }
-            />
+              title={
+                darkMode
+                  ? 'Switch to light mode'
+                  : 'Switch to dark mode'
+              }
+              className="theme-toggle flex h-10 w-10 items-center justify-center rounded-xl border transition"
+            >
+              {darkMode ? (
+                <Sun
+                  size={19}
+                  strokeWidth={2}
+                />
+              ) : (
+                <Moon
+                  size={19}
+                  strokeWidth={2}
+                />
+              )}
+            </button>
 
-            {apiStatus}
+            <div className="secondary-text flex items-center gap-2 text-sm">
+              <span
+                className={
+                  'h-2 w-2 rounded-full ' +
+                  getStatusColor()
+                }
+              />
+
+              <span>
+                {apiStatus}
+              </span>
+            </div>
           </div>
         </div>
       </nav>
 
       <section className="mx-auto grid max-w-7xl gap-6 px-6 py-6 lg:grid-cols-[360px_1fr]">
-        <aside className="rounded-3xl border border-white/10 bg-white/5 p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <aside className="sidebar-card rounded-3xl border p-6">
+          <p className="secondary-text text-xs font-semibold uppercase tracking-[0.2em]">
             Selected Location
           </p>
 
           {!selectedLocation && (
-            <div className="mt-5 rounded-2xl border border-dashed border-white/10 p-5">
-              <p className="text-sm leading-6 text-slate-400">
+            <div className="empty-card mt-5 rounded-2xl border border-dashed p-5">
+              <p className="secondary-text text-sm leading-6">
                 Search for a place
                 above or click
-                anywhere on the
-                map.
+                anywhere on the map.
               </p>
             </div>
           )}
@@ -692,18 +776,18 @@ function App() {
           {selectedLocation && (
             <div className="mt-5 space-y-4">
               {place && (
-                <div className="rounded-2xl border border-white/10 bg-slate-900 p-5">
-                  <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-500">
+                <div className="content-card rounded-2xl border p-5">
+                  <p className="secondary-text text-xs font-medium uppercase tracking-[0.15em]">
                     Location
                   </p>
 
-                  <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">
+                  <h2 className="primary-text mt-2 text-2xl font-semibold tracking-tight">
                     {place.name ||
                       'Selected location'}
                   </h2>
 
                   {locationHierarchy && (
-                    <p className="mt-2 text-sm leading-6 text-slate-400">
+                    <p className="secondary-text mt-2 text-sm leading-6">
                       {
                         locationHierarchy
                       }
@@ -712,7 +796,7 @@ function App() {
 
                   {place.type && (
                     <div className="mt-3">
-                      <span className="inline-flex rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs capitalize text-slate-400">
+                      <span className="place-badge inline-flex rounded-lg border px-2 py-1 text-xs capitalize">
                         {String(
                           place.type
                         ).replaceAll(
@@ -726,12 +810,12 @@ function App() {
                   {place.road &&
                     place.road !==
                       place.name && (
-                      <div className="mt-4 border-t border-white/10 pt-3">
-                        <p className="text-xs text-slate-500">
+                      <div className="section-divider mt-4 border-t pt-3">
+                        <p className="secondary-text text-xs">
                           Road
                         </p>
 
-                        <p className="mt-1 text-sm text-slate-300">
+                        <p className="primary-text mt-1 text-sm">
                           {
                             place.road
                           }
@@ -742,24 +826,24 @@ function App() {
               )}
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                  <p className="text-xs text-slate-500">
+                <div className="weather-stat rounded-xl p-3">
+                  <p className="secondary-text text-xs">
                     Latitude
                   </p>
 
-                  <p className="mt-1 text-sm font-semibold">
+                  <p className="primary-text mt-1 text-sm font-semibold">
                     {selectedLocation.latitude.toFixed(
                       5
                     )}
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                  <p className="text-xs text-slate-500">
+                <div className="weather-stat rounded-xl p-3">
+                  <p className="secondary-text text-xs">
                     Longitude
                   </p>
 
-                  <p className="mt-1 text-sm font-semibold">
+                  <p className="primary-text mt-1 text-sm font-semibold">
                     {selectedLocation.longitude.toFixed(
                       5
                     )}
@@ -768,19 +852,17 @@ function App() {
               </div>
 
               {weatherLoading && (
-                <div className="rounded-2xl border border-white/10 bg-slate-900 p-5">
+                <div className="content-card rounded-2xl border p-5">
                   <div className="flex items-center gap-3">
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-700 border-t-white" />
+                    <div className="loading-spinner h-5 w-5 animate-spin rounded-full border-2" />
 
                     <div>
-                      <p className="text-sm font-medium text-white">
-                        Loading
-                        weather
+                      <p className="primary-text text-sm font-medium">
+                        Loading weather
                       </p>
 
-                      <p className="mt-1 text-xs text-slate-500">
-                        Retrieving
-                        current
+                      <p className="secondary-text mt-1 text-xs">
+                        Retrieving current
                         conditions...
                       </p>
                     </div>
@@ -791,12 +873,11 @@ function App() {
               {weatherError &&
                 !weatherLoading && (
                   <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4">
-                    <p className="text-sm font-semibold text-red-300">
-                      Information
-                      unavailable
+                    <p className="text-sm font-semibold text-red-500">
+                      Information unavailable
                     </p>
 
-                    <p className="mt-2 text-sm leading-6 text-red-200">
+                    <p className="mt-2 text-sm leading-6 text-red-500">
                       {
                         weatherError
                       }
@@ -806,21 +887,20 @@ function App() {
 
               {weather &&
                 !weatherLoading && (
-                  <div className="rounded-2xl border border-white/10 bg-slate-900 p-5">
+                  <div className="content-card rounded-2xl border p-5">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-500">
-                          Current
-                          Weather
+                        <p className="secondary-text text-xs font-medium uppercase tracking-[0.15em]">
+                          Current Weather
                         </p>
 
-                        <p className="mt-3 text-4xl font-semibold tracking-tight">
+                        <p className="primary-text mt-3 text-4xl font-semibold tracking-tight">
                           {formatTemperature(
                             weather.temperature
                           )}
                         </p>
 
-                        <p className="mt-2 text-sm capitalize text-slate-400">
+                        <p className="secondary-text mt-2 text-sm capitalize">
                           {weather.description ||
                             weather.condition ||
                             'Weather unavailable'}
@@ -888,8 +968,9 @@ function App() {
                 )}
             </div>
           )}
-        </aside>  
-        <div className="relative z-0 overflow-hidden rounded-3xl border border-white/10 bg-slate-900 shadow-2xl">
+        </aside>
+
+        <div className="map-wrapper relative z-0 overflow-hidden rounded-3xl border shadow-2xl">
           <div className="h-[calc(100vh-150px)] min-h-[600px]">
             <WeatherMap
               selectedLocation={
