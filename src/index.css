@@ -1,322 +1,772 @@
 @import "tailwindcss";
 
-/* =========================================================
-   Base
-   ========================================================= */
-
-html,
-body,
-#root {
-  min-height: 100%;
-}
-
-body {
-  margin: 0;
-}
-
-
-/* =========================================================
-   Light theme
-   ========================================================= */
 
 :root {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
   color-scheme: light;
 
-  --app-bg: #f8fafc;
-  --navbar-bg: rgba(255, 255, 255, 0.96);
+  --app-bg: #f5f7fb;
+  --app-bg-secondary: #eef2f7;
+
+  --navbar-bg:
+    rgba(255, 255, 255, 0.88);
 
   --surface: #ffffff;
-  --surface-secondary: #f8fafc;
-  --surface-hover: #f1f5f9;
+  --surface-raised: #ffffff;
 
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
+  --surface-secondary:
+    #f8fafc;
 
-  --border: #e2e8f0;
-  --border-subtle: #f1f5f9;
+  --surface-hover:
+    #f1f5f9;
 
-  --button-bg: #0f172a;
-  --button-text: #ffffff;
-  --button-hover: #1e293b;
+  --text-primary:
+    #0f172a;
 
-  --icon-bg: #ffffff;
-  --icon-hover: #f1f5f9;
+  --text-secondary:
+    #64748b;
 
-  --map-bg: #e2e8f0;
+  --border:
+    #e2e8f0;
 
-  --shadow:
-    0 20px 50px rgba(15, 23, 42, 0.08);
+  --border-subtle:
+    #edf1f5;
+
+  --button-bg:
+    #0f172a;
+
+  --button-text:
+    #ffffff;
+
+  --button-hover:
+    #1e293b;
+
+  --icon-bg:
+    #ffffff;
+
+  --icon-hover:
+    #f8fafc;
+
+  --map-bg:
+    #e2e8f0;
+
+  --shadow-sm:
+    0 2px 8px rgba(
+      15,
+      23,
+      42,
+      0.04
+    );
+
+  --shadow-md:
+    0 14px 34px rgba(
+      15,
+      23,
+      42,
+      0.07
+    );
+
+  --shadow-lg:
+    0 24px 60px rgba(
+      15,
+      23,
+      42,
+      0.1
+    );
 }
 
-
-/* =========================================================
-   Dark theme
-   ========================================================= */
 
 html.dark {
   color-scheme: dark;
 
-  --app-bg: #020617;
-  --navbar-bg: rgba(2, 6, 23, 0.96);
+  --app-bg:
+    #050914;
 
-  --surface: #0f172a;
-  --surface-secondary: rgba(255, 255, 255, 0.05);
-  --surface-hover: rgba(255, 255, 255, 0.07);
+  --app-bg-secondary:
+    #080e1c;
 
-  --text-primary: #ffffff;
-  --text-secondary: #94a3b8;
+  --navbar-bg:
+    rgba(5, 9, 20, 0.88);
 
-  --border: rgba(255, 255, 255, 0.1);
-  --border-subtle: rgba(255, 255, 255, 0.06);
+  --surface:
+    #0d1423;
 
-  --button-bg: #ffffff;
-  --button-text: #020617;
-  --button-hover: #e2e8f0;
+  --surface-raised:
+    #111a2b;
 
-  --icon-bg: rgba(255, 255, 255, 0.05);
-  --icon-hover: rgba(255, 255, 255, 0.1);
+  --surface-secondary:
+    rgba(255, 255, 255, 0.045);
 
-  --map-bg: #0f172a;
+  --surface-hover:
+    rgba(255, 255, 255, 0.07);
 
-  --shadow:
-    0 20px 50px rgba(0, 0, 0, 0.3);
+  --text-primary:
+    #f8fafc;
+
+  --text-secondary:
+    #8d9aae;
+
+  --border:
+    rgba(255, 255, 255, 0.085);
+
+  --border-subtle:
+    rgba(255, 255, 255, 0.06);
+
+  --button-bg:
+    #f8fafc;
+
+  --button-text:
+    #020617;
+
+  --button-hover:
+    #e2e8f0;
+
+  --icon-bg:
+    rgba(255, 255, 255, 0.045);
+
+  --icon-hover:
+    rgba(255, 255, 255, 0.09);
+
+  --map-bg:
+    #0b1220;
+
+  --shadow-sm:
+    0 3px 12px rgba(
+      0,
+      0,
+      0,
+      0.15
+    );
+
+  --shadow-md:
+    0 18px 40px rgba(
+      0,
+      0,
+      0,
+      0.24
+    );
+
+  --shadow-lg:
+    0 28px 70px rgba(
+      0,
+      0,
+      0,
+      0.32
+    );
 }
 
 
-/* =========================================================
-   Application
-   ========================================================= */
+* {
+  box-sizing: border-box;
+}
+
+
+html {
+  background:
+    var(--app-bg);
+}
+
+
+body {
+  margin: 0;
+
+  min-width: 320px;
+
+  min-height: 100vh;
+
+  background:
+    var(--app-bg);
+
+  color:
+    var(--text-primary);
+
+  -webkit-font-smoothing:
+    antialiased;
+
+  text-rendering:
+    optimizeLegibility;
+}
+
+
+button,
+input {
+  font: inherit;
+}
+
+
+button {
+  cursor: pointer;
+}
+
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+
+::selection {
+  background:
+    rgba(14, 165, 233, 0.2);
+}
+
 
 .app-shell {
-  background: var(--app-bg);
-  color: var(--text-primary);
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease;
+  position: relative;
+
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at 15% -5%,
+      rgba(56, 189, 248, 0.075),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 95% 20%,
+      rgba(99, 102, 241, 0.055),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      var(--app-bg),
+      var(--app-bg-secondary)
+    );
 }
+
+
+html.dark .app-shell {
+  background:
+    radial-gradient(
+      circle at 15% -5%,
+      rgba(14, 165, 233, 0.12),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 95% 15%,
+      rgba(79, 70, 229, 0.08),
+      transparent 26%
+    ),
+    linear-gradient(
+      180deg,
+      var(--app-bg),
+      var(--app-bg-secondary)
+    );
+}
+
 
 .app-navbar {
-  background: var(--navbar-bg);
-  border-color: var(--border);
-  backdrop-filter: blur(16px);
-  transition:
-    background-color 0.25s ease,
-    border-color 0.25s ease;
+  position: sticky;
+
+  top: 0;
+
+  backdrop-filter:
+    blur(20px);
+
+  -webkit-backdrop-filter:
+    blur(20px);
+
+  background:
+    var(--navbar-bg);
+
+  border-color:
+    var(--border);
 }
+
+
+.brand-mark {
+  background:
+    linear-gradient(
+      135deg,
+      #0284c7,
+      #38bdf8
+    );
+
+  box-shadow:
+    0 10px 28px rgba(
+      14,
+      165,
+      233,
+      0.25
+    );
+}
+
 
 .primary-text {
-  color: var(--text-primary);
+  color:
+    var(--text-primary);
 }
+
 
 .secondary-text {
-  color: var(--text-secondary);
+  color:
+    var(--text-secondary);
 }
 
 
-/* =========================================================
-   Theme toggle
-   ========================================================= */
+.premium-card,
+.sidebar-card,
+.content-card,
+.map-card {
+  background:
+    color-mix(
+      in srgb,
+      var(--surface) 96%,
+      transparent
+    );
 
-.theme-toggle {
-  background: var(--icon-bg);
-  border-color: var(--border);
-  color: var(--text-secondary);
+  border-color:
+    var(--border);
+
+  box-shadow:
+    var(--shadow-sm);
+
+  backdrop-filter:
+    blur(12px);
 }
 
-.theme-toggle:hover {
-  background: var(--icon-hover);
-  color: var(--text-primary);
+
+.premium-card {
+  box-shadow:
+    var(--shadow-md);
 }
 
 
-/* =========================================================
-   Search
-   ========================================================= */
+.map-card {
+  box-shadow:
+    var(--shadow-lg);
+}
+
 
 .search-box {
-  background: var(--surface);
-  border-color: var(--border);
-  transition:
-    background-color 0.25s ease,
-    border-color 0.25s ease;
+  background:
+    color-mix(
+      in srgb,
+      var(--surface) 94%,
+      transparent
+    );
+
+  border-color:
+    var(--border);
+
+  box-shadow:
+    var(--shadow-sm);
 }
+
 
 .search-box:focus-within {
-  border-color: #94a3b8;
+  border-color:
+    rgba(14, 165, 233, 0.4);
+
+  box-shadow:
+    0 0 0 3px rgba(
+      14,
+      165,
+      233,
+      0.08
+    ),
+    var(--shadow-sm);
 }
 
-.search-input {
-  color: var(--text-primary);
+
+.search-box input::placeholder {
+  color:
+    color-mix(
+      in srgb,
+      var(--text-secondary) 82%,
+      transparent
+    );
 }
 
-.search-input::placeholder {
-  color: var(--text-secondary);
-  opacity: 0.7;
-}
 
 .search-submit {
-  background: var(--button-bg);
-  color: var(--button-text);
+  color:
+    white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0284c7,
+      #0ea5e9
+    );
+
+  box-shadow:
+    0 8px 20px rgba(
+      14,
+      165,
+      233,
+      0.22
+    );
 }
+
 
 .search-submit:hover {
-  background: var(--button-hover);
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 10px 26px rgba(
+      14,
+      165,
+      233,
+      0.3
+    );
 }
 
-.icon-button {
-  color: var(--text-secondary);
-}
-
-.icon-button:hover {
-  background: var(--surface-hover);
-  color: var(--text-primary);
-}
-
-
-/* =========================================================
-   Search dropdown
-   ========================================================= */
 
 .search-dropdown {
-  background: var(--surface);
-  border-color: var(--border);
-  box-shadow: var(--shadow);
+  max-height:
+    430px;
+
+  background:
+    color-mix(
+      in srgb,
+      var(--surface-raised) 97%,
+      transparent
+    );
+
+  border-color:
+    var(--border);
+
+  backdrop-filter:
+    blur(18px);
 }
+
 
 .search-result {
-  border-color: var(--border-subtle);
+  border-color:
+    var(--border-subtle);
+
+  background:
+    transparent;
 }
+
 
 .search-result:hover {
-  background: var(--surface-hover);
+  background:
+    var(--surface-hover);
 }
 
-.search-attribution {
-  border-color: var(--border);
-  color: var(--text-secondary);
+
+.nav-action {
+  color:
+    var(--text-primary);
+
+  border-color:
+    var(--border);
+
+  background:
+    var(--icon-bg);
+
+  box-shadow:
+    var(--shadow-sm);
 }
 
+
+.nav-action:hover {
+  background:
+    var(--icon-hover);
+
+  transform:
+    translateY(-1px);
+}
+
+
+.meta-badge,
 .place-badge {
-  background: var(--surface-secondary);
-  border-color: var(--border);
-  color: var(--text-secondary);
+  color:
+    var(--text-secondary);
+
+  border-color:
+    var(--border);
+
+  background:
+    var(--surface-secondary);
 }
 
 
-/* =========================================================
-   Cards
-   ========================================================= */
+.weather-hero {
+  border-color:
+    var(--border);
 
-.sidebar-card {
-  background: var(--surface-secondary);
-  border-color: var(--border);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        #0ea5e9 8%,
+        var(--surface)
+      ),
+      color-mix(
+        in srgb,
+        #6366f1 4%,
+        var(--surface)
+      )
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(
+      255,
+      255,
+      255,
+      0.22
+    );
 }
 
-.content-card {
-  background: var(--surface);
-  border-color: var(--border);
+
+html.dark .weather-hero {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(14, 165, 233, 0.11),
+      rgba(99, 102, 241, 0.05)
+    );
 }
+
+
+.weather-glow {
+  background:
+    rgba(56, 189, 248, 0.2);
+}
+
 
 .weather-stat {
-  background: var(--surface-secondary);
-  border: 1px solid var(--border);
-}
+  border-color:
+    var(--border);
 
-.empty-card {
-  border-color: var(--border);
-}
-
-.section-divider {
-  border-color: var(--border);
-}
-
-.loading-spinner {
-  border-color: var(--border);
-  border-top-color: var(--text-primary);
+  background:
+    var(--surface-secondary);
 }
 
 
-/* =========================================================
-   Map
-   ========================================================= */
+.weather-stat:hover {
+  transform:
+    translateY(-2px);
+
+  background:
+    var(--surface-hover);
+
+  box-shadow:
+    var(--shadow-sm);
+}
+
+
+.empty-state {
+  border-color:
+    var(--border);
+
+  background:
+    var(--surface-secondary);
+}
+
+
+.error-banner {
+  border-color:
+    rgba(239, 68, 68, 0.18);
+
+  background:
+    rgba(239, 68, 68, 0.07);
+}
+
+
+.map-toolbar {
+  background:
+    color-mix(
+      in srgb,
+      var(--surface) 96%,
+      transparent
+    );
+
+  border-color:
+    var(--border);
+}
+
 
 .map-wrapper {
-  background: var(--surface);
-  border-color: var(--border);
+  background:
+    var(--map-bg);
 }
+
+
+.map-hint {
+  color:
+    var(--text-primary);
+
+  border-color:
+    var(--border);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--surface) 92%,
+      transparent
+    );
+
+  backdrop-filter:
+    blur(14px);
+}
+
+
+.forecast-hour-card,
+.forecast-day-card {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(
+        in srgb,
+        var(--surface) 96%,
+        transparent
+      ),
+      color-mix(
+        in srgb,
+        var(--surface-secondary) 90%,
+        transparent
+      )
+    );
+
+  border-color:
+    var(--border);
+
+  box-shadow:
+    var(--shadow-sm);
+}
+
+
+.forecast-hour-card:hover,
+.forecast-day-card:hover {
+  transform:
+    translateY(-3px);
+
+  border-color:
+    color-mix(
+      in srgb,
+      #0ea5e9 26%,
+      var(--border)
+    );
+
+  box-shadow:
+    var(--shadow-md);
+}
+
+
+html.dark .forecast-hour-card,
+html.dark .forecast-day-card {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.018)
+    );
+}
+
+
+.forecast-hour-card img,
+.forecast-day-card img {
+  transition:
+    transform 250ms ease,
+    filter 250ms ease;
+}
+
+
+.forecast-hour-card:hover img,
+.forecast-day-card:hover img {
+  transform:
+    scale(1.06);
+}
+
 
 .leaflet-container {
-  width: 100%;
-  height: 100%;
-  background: var(--map-bg);
-  z-index: 0;
+  width:
+    100%;
+
+  height:
+    100%;
+
+  background:
+    var(--map-bg);
+
+  z-index:
+    0;
+
+  font-family:
+    inherit;
 }
+
 
 .leaflet-control-container {
-  position: relative;
-  z-index: 400;
+  position:
+    relative;
+
+  z-index:
+    400;
 }
 
 
-/* =========================================================
-   Leaflet controls
-   ========================================================= */
+.leaflet-bar {
+  overflow:
+    hidden;
 
-.leaflet-control-zoom {
   border:
     1px solid var(--border) !important;
 
   border-radius:
     12px !important;
 
-  overflow: hidden;
-
   box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    var(--shadow-md) !important;
 }
 
-.leaflet-control-zoom a {
-  width: 38px !important;
-  height: 38px !important;
-  line-height: 38px !important;
 
-  border: 0 !important;
-  border-bottom:
-    1px solid var(--border) !important;
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  width:
+    36px !important;
 
-  background:
-    var(--surface) !important;
+  height:
+    36px !important;
+
+  line-height:
+    36px !important;
 
   color:
     var(--text-primary) !important;
 
-  font-size: 20px !important;
+  border-color:
+    var(--border) !important;
 
-  transition:
-    background-color 0.2s ease;
+  background:
+    color-mix(
+      in srgb,
+      var(--surface) 94%,
+      transparent
+    ) !important;
 }
 
-.leaflet-control-zoom a:last-child {
-  border-bottom: 0 !important;
-}
 
-.leaflet-control-zoom a:hover {
+.leaflet-bar a:hover {
   background:
     var(--surface-hover) !important;
 }
 
 
-/* =========================================================
-   Leaflet popup
-   ========================================================= */
-
-.leaflet-popup-content-wrapper {
-  background:
-    var(--surface);
-
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
   color:
     var(--text-primary);
 
+  background:
+    var(--surface) !important;
+}
+
+
+.leaflet-popup-content-wrapper {
   border:
     1px solid var(--border);
 
@@ -324,105 +774,100 @@ html.dark {
     14px;
 
   box-shadow:
-    var(--shadow);
+    var(--shadow-md);
 }
+
 
 .leaflet-popup-content {
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    sans-serif;
+  margin:
+    14px 16px !important;
+
+  color:
+    var(--text-primary);
+
+  font-size:
+    12px;
+
+  line-height:
+    1.6;
 }
 
-.leaflet-popup-tip {
+
+::-webkit-scrollbar {
+  width:
+    8px;
+
+  height:
+    8px;
+}
+
+
+::-webkit-scrollbar-track {
   background:
-    var(--surface);
-}
-
-.leaflet-popup-close-button {
-  color:
-    var(--text-secondary) !important;
-}
-
-.leaflet-popup-close-button:hover {
-  color:
-    var(--text-primary) !important;
+    transparent;
 }
 
 
-/* =========================================================
-   Leaflet attribution
-   ========================================================= */
+::-webkit-scrollbar-thumb {
+  border-radius:
+    999px;
 
-.leaflet-control-attribution {
   background:
     color-mix(
       in srgb,
-      var(--surface) 90%,
+      var(--text-secondary) 28%,
       transparent
-    ) !important;
-
-  color:
-    var(--text-secondary) !important;
+    );
 }
 
-.leaflet-control-attribution a {
-  color:
-    var(--text-secondary) !important;
-}
-
-
-/* =========================================================
-   Scrollbars
-   ========================================================= */
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #94a3b8;
-  border-radius: 999px;
-}
-
-html.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
-}
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background:
+    color-mix(
+      in srgb,
+      var(--text-secondary) 45%,
+      transparent
+    );
 }
 
 
-/* =========================================================
-   Selection
-   ========================================================= */
+@media (
+  max-width: 640px
+) {
+  .app-navbar {
+    position:
+      sticky;
+  }
 
-::selection {
-  background: #cbd5e1;
-  color: #0f172a;
+  .weather-hero {
+    padding:
+      18px;
+  }
+
+  .forecast-hour-card {
+    min-width:
+      124px;
+  }
 }
 
-html.dark ::selection {
-  background: #334155;
-  color: #ffffff;
-}
 
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior:
+      auto !important;
 
-/* =========================================================
-   Responsive
-   ========================================================= */
+    transition-duration:
+      0.01ms !important;
 
-@media (max-width: 640px) {
-  .leaflet-control-zoom a {
-    width: 36px !important;
-    height: 36px !important;
-    line-height: 36px !important;
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
   }
 }
