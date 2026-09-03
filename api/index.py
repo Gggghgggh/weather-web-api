@@ -1,5 +1,8 @@
+import asyncio
+
 from fastapi import FastAPI, Query
 
+from api.services.geocoding_service import reverse_geocode
 from api.services.weather_service import get_current_weather
 
 
@@ -32,7 +35,18 @@ async def current_weather(
     lat: float = Query(..., ge=-90, le=90),
     lon: float = Query(..., ge=-180, le=180),
 ):
-    return await get_current_weather(
-        latitude=lat,
-        longitude=lon,
+    weather, location = await asyncio.gather(
+        get_current_weather(
+            latitude=lat,
+            longitude=lon,
+        ),
+        reverse_geocode(
+            latitude=lat,
+            longitude=lon,
+        ),
     )
+
+    return {
+        "location": location,
+        "weather": weather,
+    }

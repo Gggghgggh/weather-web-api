@@ -4,16 +4,25 @@ import WeatherMap from './components/WeatherMap';
 function WeatherStat({ label, value }) {
   return (
     <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-white">{value}</p>
+      <p className="text-xs text-slate-500">
+        {label}
+      </p>
+
+      <p className="mt-1 text-sm font-semibold text-white">
+        {value}
+      </p>
     </div>
   );
 }
 
 function App() {
   const [apiStatus, setApiStatus] = useState('Checking...');
+
   const [selectedLocation, setSelectedLocation] = useState(null);
+
+  const [place, setPlace] = useState(null);
   const [weather, setWeather] = useState(null);
+
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [weatherError, setWeatherError] = useState('');
 
@@ -44,8 +53,11 @@ function App() {
 
   async function handleLocationSelect(location) {
     setSelectedLocation(location);
+
+    setPlace(null);
     setWeather(null);
     setWeatherError('');
+
     setWeatherLoading(true);
 
     try {
@@ -61,24 +73,35 @@ function App() {
       const response = await fetch(url);
 
       if (!response.ok) {
-        let message = 'Unable to retrieve weather data.';
+        let errorMessage = 'Unable to retrieve weather data.';
 
         try {
           const errorData = await response.json();
 
           if (errorData && errorData.detail) {
-            message = errorData.detail;
+            errorMessage = errorData.detail;
           }
-        } catch (error) {
-          console.error('Could not read API error response:', error);
+        } catch {
+          // Use the default error message.
         }
 
-        throw new Error(message);
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
 
-      setWeather(data);
+      console.log('AngaMaps API response:', data);
+
+      if (!data) {
+        throw new Error('The API returned an empty response.');
+      }
+
+      if (!data.weather) {
+        throw new Error('Weather information was not returned.');
+      }
+
+      setPlace(data.location || null);
+      setWeather(data.weather);
     } catch (error) {
       console.error('Weather request failed:', error);
 
@@ -153,6 +176,10 @@ function App() {
   }
 
   function getWeatherIconUrl(icon) {
+    if (!icon) {
+      return '';
+    }
+
     return (
       'https://openweathermap.org/img/wn/' +
       icon +
@@ -177,62 +204,115 @@ function App() {
           <div className="flex items-center gap-2 text-sm text-slate-400">
             <span
               className={
-                'h-2 w-2 rounded-full ' + getStatusColor()
+                'h-2 w-2 rounded-full ' +
+                getStatusColor()
               }
             />
 
-            <span>{apiStatus}</span>
+            <span>
+              {apiStatus}
+            </span>
           </div>
         </div>
       </nav>
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-6 py-6 lg:grid-cols-[320px_1fr]">
+      <section className="mx-auto grid max-w-7xl gap-6 px-6 py-6 lg:grid-cols-[340px_1fr]">
         <aside className="rounded-3xl border border-white/10 bg-white/5 p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
             Selected Location
           </p>
 
-          {selectedLocation ? (
+          {!selectedLocation && (
+            <div className="mt-5 rounded-2xl border border-dashed border-white/10 p-5">
+              <p className="text-sm leading-6 text-slate-400">
+                Click anywhere on the map to view the location and
+                current weather.
+              </p>
+            </div>
+          )}
+
+          {selectedLocation && (
             <div className="mt-5 space-y-4">
-              <div>
-                <p className="text-sm text-slate-500">
-                  Latitude
-                </p>
+              {place && (
+                <div className="rounded-2xl border border-white/10 bg-slate-900 p-4">
+                  <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                    Location
+                  </p>
 
-                <p className="mt-1 text-lg font-semibold">
-                  {selectedLocation.latitude.toFixed(6)}
-                </p>
-              </div>
+                  <h2 className="mt-2 text-xl font-semibold text-white">
+                    {place.name || 'Selected location'}
+                  </h2>
 
-              <div>
-                <p className="text-sm text-slate-500">
-                  Longitude
-                </p>
+                  {place.suburb &&
+                    place.suburb !== place.name && (
+                      <p className="mt-1 text-sm text-slate-400">
+                        {place.suburb}
+                      </p>
+                    )}
 
-                <p className="mt-1 text-lg font-semibold">
-                  {selectedLocation.longitude.toFixed(6)}
-                </p>
+                  <p className="mt-2 text-sm text-slate-400">
+                    {[
+                      place.county,
+                      place.state,
+                      place.country,
+                    ]
+                      .filter(Boolean)
+                      .filter(
+                        (value, index, values) =>
+                          values.indexOf(value) === index
+                      )
+                      .join(', ')}
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <p className="text-xs text-slate-500">
+                    Latitude
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold">
+                    {selectedLocation.latitude.toFixed(5)}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <p className="text-xs text-slate-500">
+                    Longitude
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold">
+                    {selectedLocation.longitude.toFixed(5)}
+                  </p>
+                </div>
               </div>
 
               {weatherLoading && (
-                <div className="rounded-2xl border border-white/10 bg-slate-900 p-4">
+                <div className="rounded-2xl border border-white/10 bg-slate-900 p-5">
                   <div className="flex items-center gap-3">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-700 border-t-white" />
 
-                    <p className="text-sm text-slate-400">
-                      Loading weather...
-                    </p>
+                    <div>
+                      <p className="text-sm font-medium text-white">
+                        Loading weather
+                      </p>
+
+                      <p className="mt-1 text-xs text-slate-500">
+                        Retrieving location and current conditions...
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
 
               {weatherError && !weatherLoading && (
                 <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4">
-                  <p className="text-sm font-medium text-red-300">
+                  <p className="text-sm font-semibold text-red-300">
                     Weather unavailable
                   </p>
 
-                  <p className="mt-2 text-sm text-red-200">
+                  <p className="mt-2 text-sm leading-6 text-red-200">
                     {weatherError}
                   </p>
                 </div>
@@ -243,66 +323,81 @@ function App() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-sm text-slate-400">
-                        {weather.location || 'Selected location'}
+                        Current Weather
                       </p>
 
                       <p className="mt-2 text-4xl font-semibold">
-                        {formatTemperature(weather.temperature)}
+                        {formatTemperature(
+                          weather.temperature
+                        )}
                       </p>
 
                       <p className="mt-1 text-sm capitalize text-slate-400">
-                        {weather.description || 'Weather unavailable'}
+                        {weather.description ||
+                          weather.condition ||
+                          'Weather unavailable'}
                       </p>
                     </div>
 
-                    {weather.icon ? (
+                    {weather.icon && (
                       <img
-                        src={getWeatherIconUrl(weather.icon)}
-                        alt={weather.description || 'Weather'}
+                        src={getWeatherIconUrl(
+                          weather.icon
+                        )}
+                        alt={
+                          weather.description ||
+                          'Current weather'
+                        }
                         className="h-16 w-16"
                       />
-                    ) : null}
+                    )}
                   </div>
 
                   <div className="mt-5 grid grid-cols-2 gap-2">
                     <WeatherStat
                       label="Feels like"
-                      value={formatTemperature(weather.feels_like)}
+                      value={formatTemperature(
+                        weather.feels_like
+                      )}
                     />
 
                     <WeatherStat
                       label="Humidity"
-                      value={formatHumidity(weather.humidity)}
+                      value={formatHumidity(
+                        weather.humidity
+                      )}
                     />
 
                     <WeatherStat
                       label="Wind"
-                      value={formatWind(weather.wind_speed)}
+                      value={formatWind(
+                        weather.wind_speed
+                      )}
                     />
 
                     <WeatherStat
                       label="Pressure"
-                      value={formatPressure(weather.pressure)}
+                      value={formatPressure(
+                        weather.pressure
+                      )}
                     />
 
                     <WeatherStat
                       label="Cloudiness"
-                      value={formatCloudiness(weather.cloudiness)}
+                      value={formatCloudiness(
+                        weather.cloudiness
+                      )}
                     />
 
                     <WeatherStat
                       label="Visibility"
-                      value={formatVisibility(weather.visibility)}
+                      value={formatVisibility(
+                        weather.visibility
+                      )}
                     />
                   </div>
                 </div>
               )}
-            </div>
-          ) : (
-            <div className="mt-5 rounded-2xl border border-dashed border-white/10 p-5">
-              <p className="text-sm leading-6 text-slate-400">
-                Click anywhere on the map to select a location.
-              </p>
             </div>
           )}
         </aside>
